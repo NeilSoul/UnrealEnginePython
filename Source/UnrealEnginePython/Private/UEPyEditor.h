@@ -40,6 +40,11 @@ PyObject *py_unreal_engine_find_plugin(PyObject *, PyObject *);
 PyObject *py_unreal_engine_rename_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_duplicate_asset(PyObject *, PyObject *);
 PyObject *py_unreal_engine_delete_asset(PyObject *, PyObject *);
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyEditor_04) modifier:(shouwang)
+PyObject *py_unreal_engine_delete_asset_without_check(PyObject *, PyObject *);
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 PyObject *py_unreal_engine_get_long_package_path(PyObject *, PyObject *);
 PyObject *py_unreal_engine_get_long_package_asset_name(PyObject *, PyObject *);
@@ -57,6 +62,13 @@ PyObject *py_unreal_engine_remove_component_from_blueprint(PyObject *, PyObject 
 PyObject *py_unreal_engine_blueprint_add_member_variable(PyObject *, PyObject *);
 PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject *, PyObject *);
 PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject *, PyObject *);
+
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyBlueprint) modifier:(xingtongli)
+PyObject *py_unreal_engine_blueprint_set_variable_category(PyObject *, PyObject *);
+PyObject *py_unreal_engine_blueprint_set_variable_tooltip(PyObject *, PyObject *);
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 PyObject *py_unreal_engine_get_blueprint_components(PyObject *, PyObject *);
 

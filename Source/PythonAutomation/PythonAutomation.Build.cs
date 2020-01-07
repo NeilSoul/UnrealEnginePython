@@ -18,17 +18,22 @@ public class PythonAutomation : ModuleRules
         PrivateIncludePaths.AddRange(
             new string[] {
                 "PythonConsole/Private",
-				// ... add other private include paths required here ...
-			}
+                // ... add other private include paths required here ...
+            }
         );
 
         PrivateDependencyModuleNames.AddRange(
             new string[] {
                 "Core",
                 "CoreUObject", // @todo Mac: for some reason it's needed to link in debug on Mac
-		"Engine",
+                "Engine",
                 "UnrealEd",
-                "UnrealEnginePython"
+                "UnrealEnginePython",
+                //////////////////////////////////////////////////////////////////////////
+                // DK Begin: ID(#DK_Py36) modifier:(shouwang)
+                "ChloePython2",
+                // DK End
+                //////////////////////////////////////////////////////////////////////////
             }
         );
 

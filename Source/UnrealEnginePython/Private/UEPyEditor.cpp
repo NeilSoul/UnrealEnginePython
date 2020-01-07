@@ -877,6 +877,36 @@ PyObject *py_unreal_engine_delete_asset(PyObject * self, PyObject * args)
 	Py_RETURN_NONE;
 }
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyEditor_04) modifier:(shouwang)
+PyObject *py_unreal_engine_delete_asset_without_check(PyObject * self, PyObject * args)
+{
+	char *path;
+	if (!PyArg_ParseTuple(args, "s:delete_asset", &path))
+	{
+		return NULL;
+	}
+
+	if (!GEditor)
+		return PyErr_Format(PyExc_Exception, "no GEditor found");
+
+	FAssetRegistryModule& AssetRegistryModule = FModuleManager::GetModuleChecked<FAssetRegistryModule>("AssetRegistry");
+	FAssetData asset = AssetRegistryModule.Get().GetAssetByObjectPath(UTF8_TO_TCHAR(path));
+	if (!asset.IsValid())
+		return PyErr_Format(PyExc_Exception, "unable to find asset %s", path);
+
+	UObject *u_object = asset.GetAsset();
+
+	if (!ObjectTools::DeleteSingleObject(u_object, false))
+	{
+		return PyErr_Format(PyExc_Exception, "unable to delete asset %s", path);
+	}
+
+	Py_RETURN_NONE;
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 PyObject *py_unreal_engine_delete_object(PyObject * self, PyObject * args)
 {
 	PyObject *py_obj;
@@ -1691,6 +1721,48 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject * self, Py
 
 	Py_RETURN_NONE;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyBlueprint) modifier:(xingtongli)
+PyObject * py_unreal_engine_blueprint_set_variable_category(PyObject *self, PyObject *args)
+{
+	PyObject *py_blueprint;
+	char *name = nullptr;
+	char *category_text = nullptr;
+	if (!PyArg_ParseTuple(args, "Oss:blueprint_set_variable_category", &py_blueprint, &name, &category_text))
+	{
+		return nullptr;
+	}
+
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "uobject is not a Blueprint");
+
+	FBlueprintEditorUtils::SetBlueprintVariableCategory(bp, FName(UTF8_TO_TCHAR(name)), nullptr, FText::FromString(UTF8_TO_TCHAR(category_text)));
+
+	Py_RETURN_NONE;
+}
+
+PyObject * py_unreal_engine_blueprint_set_variable_tooltip(PyObject *self, PyObject *args)
+{
+	PyObject *py_blueprint;
+	char *name = nullptr;
+	char *tooltip_text = nullptr;
+	if (!PyArg_ParseTuple(args, "Oss:blueprint_set_variable_tooltip", &py_blueprint, &name, &tooltip_text))
+	{
+		return nullptr;
+	}
+
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "uobject is not a Blueprint");
+
+	FBlueprintEditorUtils::SetBlueprintVariableMetaData(bp, FName(UTF8_TO_TCHAR(name)), nullptr, TEXT("tooltip"), UTF8_TO_TCHAR(tooltip_text));
+
+	Py_RETURN_NONE;
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 PyObject *py_unreal_engine_blueprint_add_new_timeline(PyObject * self, PyObject * args)
 {

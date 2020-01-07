@@ -97,6 +97,59 @@ PyObject *py_ue_data_table_rename_row(ue_PyUObject * self, PyObject * args)
 	Py_RETURN_FALSE;
 }
 
+//////////////////////////////////////////////////////
+// DK Begin: (ID)(#DK_PyDataTable) modifer(shouwang)
+PyObject *py_ue_data_table_mod_row(ue_PyUObject * self, PyObject * args)
+{
+
+	ue_py_check(self);
+
+	char *name;
+	PyObject *py_row;
+
+	if (!PyArg_ParseTuple(args, "sO:data_table_add_row", &name, &py_row))
+	{
+		return nullptr;
+	}
+
+	UDataTable *data_table = ue_py_check_type<UDataTable>(self);
+	if (!data_table)
+		return PyErr_Format(PyExc_Exception, "uobject is not a UDataTable");
+
+	ue_PyUScriptStruct *u_struct = py_ue_is_uscriptstruct(py_row);
+	if (!u_struct)
+		return PyErr_Format(PyExc_Exception, "argument is not a UScriptStruct");
+
+	if (data_table->RowStruct != u_struct->u_struct)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not a %s", TCHAR_TO_UTF8(*data_table->RowStruct->GetName()));
+	}
+
+	FName row_name = FName(UTF8_TO_TCHAR(name));
+
+	FDataTableEditorUtils::BroadcastPreChange(data_table, FDataTableEditorUtils::EDataTableChangeInfo::RowList);
+	data_table->Modify();
+
+	uint8 **data = nullptr;
+#if ENGINE_MINOR_VERSION > 20
+	data = (uint8 **)data_table->GetRowMap().Find(row_name);
+#else
+	data = data_table->RowMap.Find(row_name);
+#endif
+	if (!data)
+	{
+		return PyErr_Format(PyExc_Exception, "key not found in UDataTable");
+	}
+
+	data_table->RowStruct->CopyScriptStruct(*data, u_struct->u_struct_ptr);
+
+	FDataTableEditorUtils::BroadcastPostChange(data_table, FDataTableEditorUtils::EDataTableChangeInfo::RowList);
+	Py_RETURN_NONE;
+
+}
+// DKEnd
+/////////////////////////////////////////////////////
+
 PyObject *py_ue_data_table_as_dict(ue_PyUObject * self, PyObject * args)
 {
 

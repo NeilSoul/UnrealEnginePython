@@ -33,7 +33,12 @@ public class PythonConsole : ModuleRules
                 "SlateCore",
                 "EditorStyle",
                 "TargetPlatform",
-                "UnrealEnginePython"
+                "UnrealEnginePython",
+                //////////////////////////////////////////////////////////////////////////
+                // DK Begin: ID(#DK_Py36) modifier:(shouwang)
+                "ChloePython2",
+                // DK End
+                //////////////////////////////////////////////////////////////////////////
             }
         );
 

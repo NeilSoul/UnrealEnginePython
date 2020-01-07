@@ -34,11 +34,16 @@ namespace UnrealBuildTool.Rules
                     "EditorStyle",
                     "PropertyEditor",
                     "Kismet",  // for FWorkflowCentricApplication
-					"InputCore",
+                    "InputCore",
                     "DirectoryWatcher",
                     "LevelEditor",
                     "Projects",
-                    "UnrealEnginePython"
+                    "UnrealEnginePython",
+                     //////////////////////////////////////////////////////////////////////////
+                    // DK Begin: ID(#DK_Py36) modifier:(shouwang)
+                    "ChloePython2",
+                    // DK End
+                    //////////////////////////////////////////////////////////////////////////
                 }
                 );
         }

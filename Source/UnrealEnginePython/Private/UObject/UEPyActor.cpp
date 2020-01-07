@@ -522,7 +522,16 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 	PyObject *obj;
 	char *name;
 	PyObject *py_parent = nullptr;
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyAddComponent) modifier:(xingtongli)
+#if 0
 	if (!PyArg_ParseTuple(args, "Os|O:add_actor_component", &obj, &name, &py_parent))
+#else
+	char *socket_name = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|Os:add_actor_component", &obj, &name, &py_parent, &socket_name))
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	{
 		return nullptr;
 	}
@@ -559,7 +568,23 @@ PyObject *py_ue_add_actor_component(ue_PyUObject * self, PyObject * args)
 		if (py_parent && component->IsA<USceneComponent>())
 		{
 			USceneComponent *scene_component = (USceneComponent *)component;
+			//////////////////////////////////////////////////////////////////////////
+			// DK Begin: ID(#DK_PyAddComponent) modifier:(xingtongli)
+#if 0
 			scene_component->SetupAttachment(parent_component);
+#else
+			if (socket_name)
+			{
+				scene_component->SetupAttachment(parent_component, FName(UTF8_TO_TCHAR(socket_name)));
+			}
+			else
+			{
+				scene_component->SetupAttachment(parent_component);
+			}
+#endif
+			// DK End
+			//////////////////////////////////////////////////////////////////////////
+			
 		}
 
 		if (actor->GetWorld() && !component->IsRegistered())
