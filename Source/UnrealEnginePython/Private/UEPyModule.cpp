@@ -307,6 +307,11 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "add_tool_bar_extension", py_unreal_engine_add_tool_bar_extension, METH_VARARGS, "" },
 
 	{ "add_asset_view_context_menu_extension", py_unreal_engine_add_asset_view_context_menu_extension, METH_VARARGS, "" },
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+	{ "add_asset_acedmode_menu_extension", py_unreal_engine_add_acedmode_menu_extension, METH_VARARGS, "" },
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 	{ "redraw_all_viewports", py_unreal_engine_redraw_all_viewports, METH_VARARGS, "" },
 	{ "update_ui", py_unreal_engine_update_ui, METH_VARARGS, "" },
@@ -351,6 +356,11 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "rename_asset", py_unreal_engine_rename_asset, METH_VARARGS, "" },
 	{ "duplicate_asset", py_unreal_engine_duplicate_asset, METH_VARARGS, "" },
 	{ "delete_asset", py_unreal_engine_delete_asset, METH_VARARGS, "" },
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyEditor_04) modifier:(shouwang)
+	{ "delete_asset_without_check", py_unreal_engine_delete_asset_without_check, METH_VARARGS, "" },
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	{ "get_long_package_path", py_unreal_engine_get_long_package_path, METH_VARARGS, "" },
 	{ "get_long_package_asset_name", py_unreal_engine_get_long_package_asset_name, METH_VARARGS, "" },
@@ -387,6 +397,12 @@ static PyMethodDef unreal_engine_methods[] = {
 	{ "blueprint_add_event_dispatcher", py_unreal_engine_blueprint_add_event_dispatcher, METH_VARARGS, "" },
 	{ "blueprint_add_new_timeline", py_unreal_engine_blueprint_add_new_timeline, METH_VARARGS, "" },
 	{ "blueprint_set_variable_visibility", py_unreal_engine_blueprint_set_variable_visibility, METH_VARARGS, "" },
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyBlueprint) modifier:(xingtongli)
+	{ "blueprint_set_variable_category", py_unreal_engine_blueprint_set_variable_category, METH_VARARGS, "" },
+	{ "blueprint_set_variable_tooltip", py_unreal_engine_blueprint_set_variable_tooltip, METH_VARARGS, "" },
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	{ "blueprint_add_function", py_unreal_engine_blueprint_add_function, METH_VARARGS, "" },
 	{ "blueprint_add_ubergraph_page", py_unreal_engine_blueprint_add_ubergraph_page, METH_VARARGS, "" },
 	{ "blueprint_get_all_graphs", py_unreal_engine_blueprint_get_all_graphs, METH_VARARGS, "" },
@@ -698,6 +714,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "data_table_as_json", (PyCFunction)py_ue_data_table_as_json, METH_VARARGS, "" },
 	{ "data_table_find_row", (PyCFunction)py_ue_data_table_find_row, METH_VARARGS, "" },
 	{ "data_table_get_all_rows", (PyCFunction)py_ue_data_table_get_all_rows, METH_VARARGS, "" },
+	///////////////////////////////////////////////////////////////
+	// DK Begin: (ID)(#DK_PyDataTable) modifier(shouwang)
+	{ "data_table_mod_row", (PyCFunction)py_ue_data_table_mod_row, METH_VARARGS, "" },
+	// DK End
+	////////////////////////////////////////////////////////////
 #endif
 
 	{ "export_to_file", (PyCFunction)py_ue_export_to_file, METH_VARARGS, "" },
@@ -862,7 +883,11 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "play", (PyCFunction)py_ue_play, METH_VARARGS, "" },
 
 	{ "get_world_type", (PyCFunction)py_ue_get_world_type, METH_VARARGS, "" },
-
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyEditor_03) modifier(shouwang)
+	{ "get_world_map_name", (PyCFunction)py_ue_get_world_map_name, METH_VARARGS, "" },
+// DK End
+/////////////////////////////////////////////////////////////
 	{ "world_exec", (PyCFunction)py_ue_world_exec, METH_VARARGS, "" },
 
 	{ "simple_move_to_location", (PyCFunction)py_ue_simple_move_to_location, METH_VARARGS, "" },
@@ -1103,6 +1128,14 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_add_camera_cut_track", (PyCFunction)py_ue_sequencer_add_camera_cut_track, METH_VARARGS, "" },
 	{ "sequencer_add_actor", (PyCFunction)py_ue_sequencer_add_actor, METH_VARARGS, "" },
 	{ "sequencer_add_actor_component", (PyCFunction)py_ue_sequencer_add_actor_component, METH_VARARGS, "" },
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PySequencer_01) modifier(shouwang)
+	{ "sequencer_set_parent", (PyCFunction)py_ue_sequencer_set_parent, METH_VARARGS, "" },
+	{ "sequencer_find_track", (PyCFunction)py_ue_sequencer_find_track, METH_VARARGS, "" },
+	{ "sequencer_add_object", (PyCFunction)py_ue_sequencer_add_object, METH_VARARGS, "" },
+	{ "sequencer_track_set_property", (PyCFunction)py_ue_sequencer_track_set_property, METH_VARARGS, "" },
+// DK End
+/////////////////////////////////////////////////////////////
 	{ "sequencer_make_new_spawnable", (PyCFunction)py_ue_sequencer_make_new_spawnable, METH_VARARGS, "" },
 
 	{ "sequencer_add_possessable", (PyCFunction)py_ue_sequencer_add_possessable, METH_VARARGS, "" },
@@ -1116,6 +1149,15 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_remove_track", (PyCFunction)py_ue_sequencer_remove_track, METH_VARARGS, "" },
 	{ "sequencer_import_fbx_transform", (PyCFunction)py_ue_sequencer_import_fbx_transform, METH_VARARGS, "" },
 
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PySequencer) modifier:(xingtongli)
+	{ "sequencer_replace_spawnable", (PyCFunction)py_ue_sequencer_replace_spawnable, METH_VARARGS, "" },
+	{ "sequencer_get_spawnable_count", (PyCFunction)py_ue_sequencer_get_spawnable_count, METH_VARARGS, "" },
+	{ "sequencer_get_spawnable_guid", (PyCFunction)py_ue_sequencer_get_spawnable_guid, METH_VARARGS, "" },
+	{ "sequencer_get_spawnable_obj_template", (PyCFunction)py_ue_sequencer_get_spawnable_obj_template, METH_VARARGS, "" },
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
+	
 #endif
 	{ "sequencer_sections", (PyCFunction)py_ue_sequencer_sections, METH_VARARGS, "" },
 	{ "sequencer_track_sections", (PyCFunction)py_ue_sequencer_track_sections, METH_VARARGS, "" },
@@ -2251,6 +2293,240 @@ PyObject* ue_py_convert_property(UProperty* prop, uint8* buffer, int32 index)
 	return PyErr_Format(PyExc_Exception, "unsupported value type %s for property %s", TCHAR_TO_UTF8(*prop->GetClass()->GetName()), TCHAR_TO_UTF8(*prop->GetName()));
 }
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyConvertProperty) modifier:(xingtongli)
+PyObject * ue_py_convert_property_struct_ownered(UProperty *prop, uint8 *buffer, int32 index)
+{
+	if (auto casted_prop = Cast<UBoolProperty>(prop))
+	{
+		bool value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		if (value)
+		{
+			Py_RETURN_TRUE;
+		}
+		Py_RETURN_FALSE;
+	}
+
+	if (auto casted_prop = Cast<UIntProperty>(prop))
+	{
+		int value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyLong_FromLong(value);
+	}
+
+	if (auto casted_prop = Cast<UUInt32Property>(prop))
+	{
+		uint32 value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyLong_FromUnsignedLong(value);
+	}
+
+	if (auto casted_prop = Cast<UInt64Property>(prop))
+	{
+		long long value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyLong_FromLongLong(value);
+	}
+
+	if (auto casted_prop = Cast<UUInt64Property>(prop))
+	{
+		uint64 value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyLong_FromUnsignedLongLong(value);
+	}
+
+	if (auto casted_prop = Cast<UFloatProperty>(prop))
+	{
+		float value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyFloat_FromDouble(value);
+	}
+
+	if (auto casted_prop = Cast<UByteProperty>(prop))
+	{
+		uint8 value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyLong_FromUnsignedLong(value);
+	}
+
+#if ENGINE_MINOR_VERSION >= 15
+	if (auto casted_prop = Cast<UEnumProperty>(prop))
+	{
+		void *prop_addr = casted_prop->ContainerPtrToValuePtr<void>(buffer, index);
+		uint64 enum_index = casted_prop->GetUnderlyingProperty()->GetUnsignedIntPropertyValue(prop_addr);
+		return PyLong_FromUnsignedLong(enum_index);
+	}
+#endif
+
+	if (auto casted_prop = Cast<UStrProperty>(prop))
+	{
+		FString value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value));
+	}
+
+	if (auto casted_prop = Cast<UTextProperty>(prop))
+	{
+		FText value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value.ToString()));
+	}
+
+	if (auto casted_prop = Cast<UNameProperty>(prop))
+	{
+		FName value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		return PyUnicode_FromString(TCHAR_TO_UTF8(*value.ToString()));
+	}
+
+	if (auto casted_prop = Cast<UObjectPropertyBase>(prop))
+	{
+		auto value = casted_prop->GetObjectPropertyValue_InContainer(buffer, index);
+		if (value)
+		{
+			Py_RETURN_UOBJECT(value);
+		}
+		Py_RETURN_NONE;
+	}
+
+	if (auto casted_prop = Cast<UClassProperty>(prop))
+	{
+		auto value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		if (value)
+		{
+			Py_RETURN_UOBJECT(value);
+		}
+		return PyErr_Format(PyExc_Exception, "invalid UClass type for %s", TCHAR_TO_UTF8(*casted_prop->GetName()));
+	}
+
+	// try to manage known struct first
+	if (auto casted_prop = Cast<UStructProperty>(prop))
+	{
+		if (auto casted_struct = Cast<UScriptStruct>(casted_prop->Struct))
+		{
+			// check for FVector
+			if (casted_struct == TBaseStructure<FVector>::Get())
+			{
+				FVector vec = *casted_prop->ContainerPtrToValuePtr<FVector>(buffer, index);
+				return py_ue_new_fvector(vec);
+			}
+			if (casted_struct == TBaseStructure<FRotator>::Get())
+			{
+				FRotator rot = *casted_prop->ContainerPtrToValuePtr<FRotator>(buffer, index);
+				return py_ue_new_frotator(rot);
+			}
+			if (casted_struct == TBaseStructure<FTransform>::Get())
+			{
+				FTransform transform = *casted_prop->ContainerPtrToValuePtr<FTransform>(buffer, index);
+				return py_ue_new_ftransform(transform);
+			}
+			if (casted_struct == FHitResult::StaticStruct())
+			{
+				FHitResult hit = *casted_prop->ContainerPtrToValuePtr<FHitResult>(buffer, index);
+				return py_ue_new_fhitresult(hit);
+			}
+			if (casted_struct == TBaseStructure<FColor>::Get())
+			{
+				FColor color = *casted_prop->ContainerPtrToValuePtr<FColor>(buffer, index);
+				return py_ue_new_fcolor(color);
+			}
+			if (casted_struct == TBaseStructure<FLinearColor>::Get())
+			{
+				FLinearColor color = *casted_prop->ContainerPtrToValuePtr<FLinearColor>(buffer, index);
+				return py_ue_new_flinearcolor(color);
+			}
+
+			return py_ue_new_owned_uscriptstruct(casted_struct, casted_prop->ContainerPtrToValuePtr<uint8>(buffer, index));
+		}
+		return PyErr_Format(PyExc_TypeError, "unsupported UStruct type");
+	}
+
+	if (auto casted_prop = Cast<UWeakObjectProperty>(prop))
+	{
+		auto value = casted_prop->GetPropertyValue_InContainer(buffer, index);
+		UObject *strong_obj = value.Get();
+		if (strong_obj)
+		{
+			Py_RETURN_UOBJECT(strong_obj);
+		}
+		// nullptr
+		Py_RETURN_NONE;
+	}
+
+	if (auto casted_prop = Cast<UMulticastDelegateProperty>(prop))
+	{
+		Py_RETURN_UOBJECT(casted_prop);
+	}
+
+	if (auto casted_prop = Cast<UDelegateProperty>(prop))
+	{
+		Py_RETURN_UOBJECT(casted_prop);
+	}
+
+	if (auto casted_prop = Cast<UArrayProperty>(prop))
+	{
+		FScriptArrayHelper_InContainer array_helper(casted_prop, buffer, index);
+
+		UProperty *array_prop = casted_prop->Inner;
+
+		// check for TArray<uint8>, so we can use bytearray optimization
+		if (auto uint8_tarray = Cast<UByteProperty>(array_prop))
+		{
+			uint8 *buf = array_helper.GetRawPtr();
+			return PyByteArray_FromStringAndSize((char *)buf, array_helper.Num());
+		}
+
+		PyObject *py_list = PyList_New(0);
+
+		for (int i = 0; i < array_helper.Num(); i++)
+		{
+			PyObject *item = ue_py_convert_property(array_prop, array_helper.GetRawPtr(i), 0);
+			if (!item)
+			{
+				Py_DECREF(py_list);
+				return NULL;
+			}
+			PyList_Append(py_list, item);
+			Py_DECREF(item);
+		}
+
+		return py_list;
+	}
+
+#if ENGINE_MINOR_VERSION >= 15
+	if (auto casted_prop = Cast<UMapProperty>(prop))
+	{
+		FScriptMapHelper_InContainer map_helper(casted_prop, buffer, index);
+
+		PyObject *py_dict = PyDict_New();
+
+		for (int32 i = 0; i < map_helper.Num(); i++)
+		{
+			if (map_helper.IsValidIndex(i))
+			{
+
+				uint8 *ptr = map_helper.GetPairPtr(i);
+
+				PyObject *py_key = ue_py_convert_property(map_helper.KeyProp, ptr, 0);
+				if (!py_key)
+				{
+					Py_DECREF(py_dict);
+					return NULL;
+				}
+
+				PyObject *py_value = ue_py_convert_property(map_helper.ValueProp, ptr, 0);
+				if (!py_value)
+				{
+					Py_DECREF(py_dict);
+					return NULL;
+				}
+
+				PyDict_SetItem(py_dict, py_key, py_value);
+				Py_DECREF(py_key);
+				Py_DECREF(py_value);
+			}
+		}
+
+		return py_dict;
+	}
+#endif
+
+	return PyErr_Format(PyExc_Exception, "unsupported value type %s for property %s", TCHAR_TO_UTF8(*prop->GetClass()->GetName()), TCHAR_TO_UTF8(*prop->GetName()));
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 // convert a python object to a property
 bool ue_py_convert_pyobject(PyObject* py_obj, UProperty* prop, uint8* buffer, int32 index)
 {
@@ -3000,7 +3276,16 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 		UProperty* prop = *Props;
 		if (prop->GetPropertyFlags() & CPF_ReturnParm)
 		{
+			//////////////////////////////////////////////////////////////////////////
+			// DK Begin: ID(#DK_PyConvertProperty) modifier:(xingtongli)
+#if 0
 			ret = ue_py_convert_property(prop, buffer, 0);
+#else
+			ret = ue_py_convert_property_struct_ownered(prop, buffer, 0);
+#endif
+			// DK End
+			//////////////////////////////////////////////////////////////////////////
+			
 			if (!ret)
 			{
 				// destroy params
@@ -3028,7 +3313,16 @@ PyObject* py_ue_ufunction_call(UFunction* u_function, UObject* u_obj, PyObject* 
 				// skip return param as it must be always the first
 				if (prop->GetPropertyFlags() & CPF_ReturnParm)
 					continue;
+				//////////////////////////////////////////////////////////////////////////
+				// DK Begin: ID(#DK_PyConvertProperty) modifier:(xingtongli)
+#if 0
 				PyObject* py_out = ue_py_convert_property(prop, buffer, 0);
+#else
+				PyObject *py_out = ue_py_convert_property_struct_ownered(prop, buffer, 0);
+#endif
+				// DK End
+				//////////////////////////////////////////////////////////////////////////
+				
 				if (!py_out)
 				{
 					Py_DECREF(multi_ret);

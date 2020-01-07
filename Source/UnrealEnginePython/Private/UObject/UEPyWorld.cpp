@@ -64,6 +64,21 @@ PyObject *py_ue_get_world_type(ue_PyUObject *self, PyObject * args)
 	return PyLong_FromUnsignedLong(world->WorldType);
 }
 
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyEditor_03) modifier(shouwang)
+PyObject * py_ue_get_world_map_name(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	UWorld *world = ue_get_uworld(self);
+	if (!world)
+		return PyErr_Format(PyExc_Exception, "unable to retrieve UWorld from uobject");
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*(world->GetMapName())));
+}
+// DK End
+/////////////////////////////////////////////////////////////
+
 PyObject *py_ue_play(ue_PyUObject *self, PyObject * args)
 {
 

@@ -29,7 +29,11 @@ PyObject *py_ue_get_current_level(ue_PyUObject *, PyObject *);
 PyObject *py_ue_set_current_level(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_get_world_type(ue_PyUObject *, PyObject *);
-
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyEditor_03) modifier(shouwang)
+PyObject *py_ue_get_world_map_name(ue_PyUObject *, PyObject *);
+// DK End
+/////////////////////////////////////////////////////////////
 #if WITH_EDITOR
 PyObject *py_ue_world_create_folder(ue_PyUObject *, PyObject *);
 PyObject *py_ue_world_delete_folder(ue_PyUObject *, PyObject *);

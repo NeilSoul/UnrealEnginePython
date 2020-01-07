@@ -926,7 +926,16 @@ PyObject *py_ue_enum_values(ue_PyUObject *self, PyObject * args)
 	PyObject *ret = PyList_New(0);
 	for (uint8 i = 0; i < max_enum_value; i++)
 	{
+		//////////////////////////////////////////////////////////////////////////
+		// DK Begin: ID(#DK_PyEnum) modifier:(xingtongli)
+#if 0
 		PyObject *py_long = PyLong_FromLong(i);
+#else
+		int64 value = u_enum->GetValueByIndex(i);
+		PyObject *py_long = PyLong_FromLong(value);
+#endif
+		// DK End
+		//////////////////////////////////////////////////////////////////////////
 		PyList_Append(ret, py_long);
 		Py_DECREF(py_long);
 	}
@@ -963,6 +972,9 @@ PyObject *py_ue_enum_user_defined_names(ue_PyUObject *self, PyObject * args)
 		return PyErr_Format(PyExc_TypeError, "uobject is not a UEnum");
 
 	UUserDefinedEnum *u_enum = (UUserDefinedEnum *)self->ue_object;
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyEnum) modifier:(xingtongli)
+#if 0
 	TArray<FText> user_defined_names;
 	u_enum->DisplayNameMap.GenerateValueArray(user_defined_names);
 	PyObject *ret = PyList_New(0);
@@ -972,6 +984,17 @@ PyObject *py_ue_enum_user_defined_names(ue_PyUObject *self, PyObject * args)
 		PyList_Append(ret, py_long);
 		Py_DECREF(py_long);
 	}
+#else
+	uint8 max_enum_value = u_enum->GetMaxEnumValue();
+	PyObject *ret = PyList_New(0);
+	for (uint8 i = 0; i < max_enum_value; i++)
+	{
+		PyObject *py_long = PyUnicode_FromString(TCHAR_TO_UTF8(*u_enum->GetDisplayNameTextByIndex(i).ToString()));
+		PyList_Append(ret, py_long);
+		Py_DECREF(py_long);
+	}
+#endif
+	
 	return ret;
 }
 #endif

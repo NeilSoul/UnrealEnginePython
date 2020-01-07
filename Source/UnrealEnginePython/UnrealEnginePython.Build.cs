@@ -7,6 +7,9 @@ using System.Collections.Generic;
 public class UnrealEnginePython : ModuleRules
 {
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#if False
     // leave this string as empty for triggering auto-discovery of python installations...
     private string pythonHome = "";
     // otherwise specify the path of your python installation
@@ -86,6 +89,9 @@ public class UnrealEnginePython : ModuleRules
         "/usr/lib/libpython2.7.so",
         "/usr/lib/x86_64-linux-gnu/libpython2.7.so",
     };
+#endif
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 #if WITH_FORWARDED_MODULE_RULES_CTOR
     public UnrealEnginePython(ReadOnlyTargetRules Target) : base(Target)
@@ -121,6 +127,16 @@ public class UnrealEnginePython : ModuleRules
 				// ... add other public dependencies that you statically link with here ...
 			}
             );
+        
+        //////////////////////////////////////////////////////////////////////////
+        // DK Begin: ID(#DK_Py36) modifier:(shouwang)
+        PrivateIncludePathModuleNames.AddRange(
+            new string[] {
+                "ChloePython2",
+            }
+        );
+        // DK End
+        //////////////////////////////////////////////////////////////////////////
 
 
         PrivateDependencyModuleNames.AddRange(
@@ -142,8 +158,13 @@ public class UnrealEnginePython : ModuleRules
                 "MovieSceneCapture",
                 "Landscape",
                 "Foliage",
-                "AIModule"
+                "AIModule",
 				// ... add private dependencies that you statically link with here ...
+                //////////////////////////////////////////////////////////////////////////
+                // DK Begin: ID(#DK_Py36) modifier:(shouwang)
+                "Analytics",
+                // DK End
+                //////////////////////////////////////////////////////////////////////////
 			}
             );
 
@@ -196,10 +217,21 @@ public class UnrealEnginePython : ModuleRules
                 "Persona",
                 "PropertyEditor",
                 "LandscapeEditor",
-                "MaterialEditor"
+                "MaterialEditor",
+                // DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+                "AdvancedCharacterEditor",
+                // DK End
+                //////////////////////////////////////////////////////////////////////////
+                // DK Begin: ID(#DK_Py36) modifier:(shouwang)
+                "DesktopPlatform",
+                "ChloePython2",
+                // DK End
+                //////////////////////////////////////////////////////////////////////////
             });
         }
-
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#if False
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
         {
             if (pythonHome == "")
@@ -270,8 +302,14 @@ public class UnrealEnginePython : ModuleRules
         }
 #endif
 
+#endif
+// DK End
+//////////////////////////////////////////////////////////////////////////
     }
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#if False
     private bool IsPathRelative(string Path)
     {
         bool IsRooted = Path.StartsWith("\\", System.StringComparison.Ordinal) || // Root of the current directory on Windows. Also covers "\\" for UNC or "network" paths.
@@ -436,4 +474,7 @@ public class UnrealEnginePython : ModuleRules
 
         throw new System.Exception("Invalid Python installation, missing .lib files");
     }
+#endif
+// DK End
+//////////////////////////////////////////////////////////////////////////
 }

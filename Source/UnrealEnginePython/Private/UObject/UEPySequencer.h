@@ -29,6 +29,14 @@ PyObject *py_ue_sequencer_add_possessable(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_track_add_section(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_add_actor(ue_PyUObject *, PyObject *);
 PyObject *py_ue_sequencer_add_actor_component(ue_PyUObject *, PyObject *);
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PySequencer_01) modifier(shouwang)
+PyObject *py_ue_sequencer_set_parent(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_track_set_property(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_find_track(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_add_object(ue_PyUObject *, PyObject *);
+// DK End
+/////////////////////////////////////////////////////////////
 PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_remove_possessable(ue_PyUObject *, PyObject *);
@@ -51,3 +59,13 @@ PyObject *py_ue_sequencer_add_master_track(ue_PyUObject *, PyObject *);
 
 PyObject *py_ue_sequencer_add_track(ue_PyUObject *, PyObject *);
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PySequencer) modifier:(xingtongli)
+#if WITH_EDITOR
+PyObject *py_ue_sequencer_replace_spawnable(ue_PyUObject *, PyObject *);
+#endif
+PyObject *py_ue_sequencer_get_spawnable_count(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_spawnable_guid(ue_PyUObject *, PyObject *);
+PyObject *py_ue_sequencer_get_spawnable_obj_template(ue_PyUObject *, PyObject *);
+// DK End
+//////////////////////////////////////////////////////////////////////////

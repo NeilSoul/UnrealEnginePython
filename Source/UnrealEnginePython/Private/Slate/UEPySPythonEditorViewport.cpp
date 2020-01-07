@@ -148,6 +148,40 @@ static PyObject *py_ue_spython_editor_viewport_set_view_rotation(ue_PySPythonEdi
 	Py_RETURN_SLATE_SELF;
 }
 
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyEditor_02) modifier(shouwang)
+static PyObject *py_ue_spython_editor_viewport_set_view_field_of_view(ue_PySPythonEditorViewport *self, PyObject * args)
+{
+	ue_py_slate_cast(SPythonEditorViewport);
+
+	float fov;
+	if (!PyArg_ParseTuple(args, "f", &fov))
+	{
+		return nullptr;
+	}
+
+	py_SPythonEditorViewport->GetViewportClient()->ViewFOV = fov;
+
+	Py_RETURN_SLATE_SELF;
+}
+
+static PyObject *py_ue_spython_editor_viewport_set_view_camera_setting(ue_PySPythonEditorViewport *self, PyObject * args)
+{
+	ue_py_slate_cast(SPythonEditorViewport);
+
+	int speedsetting;
+	if (!PyArg_ParseTuple(args, "i", &speedsetting))
+	{
+		return nullptr;
+	}
+
+	py_SPythonEditorViewport->GetViewportClient()->SetCameraSpeedSetting(speedsetting);
+
+	Py_RETURN_SLATE_SELF;
+}
+// DK End
+/////////////////////////////////////////////////////////////
+
 static PyObject *py_ue_spython_editor_viewport_simulate(ue_PySPythonEditorViewport *self, PyObject * args)
 {
 	ue_py_slate_cast(SPythonEditorViewport);
@@ -260,6 +294,12 @@ static PyMethodDef ue_PySPythonEditorViewport_methods[] = {
 	{ "set_light_brightness", (PyCFunction)py_ue_spython_editor_viewport_set_light_brightness, METH_VARARGS, "" },
 	{ "set_sky_brightness", (PyCFunction)py_ue_spython_editor_viewport_set_sky_brightness, METH_VARARGS, "" },
 	{ "get_light", (PyCFunction)py_ue_spython_editor_viewport_get_light, METH_VARARGS, "" },
+	/////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyEditor_02) modifier(shouwang)
+	{ "set_view_field_of_view", (PyCFunction)py_ue_spython_editor_viewport_set_view_field_of_view, METH_VARARGS, "" },
+	{ "set_view_camera_speed_setting", (PyCFunction)py_ue_spython_editor_viewport_set_view_camera_setting, METH_VARARGS, "" },
+	// DK End
+	/////////////////////////////////////////////////////////////
 	{ NULL }  /* Sentinel */
 };
 

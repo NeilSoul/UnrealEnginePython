@@ -35,9 +35,21 @@ public:
 	void OnStringChanged(const FString &text);
 
 	TSharedRef<SDockTab> SpawnPythonTab(const FSpawnTabArgs& args);
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+	void OnTabClosed(TSharedRef<SDockTab> DockTab);
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	TSharedRef<ITableRow> GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
 	void GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TSharedPtr<FPythonItem>>& OutChildren);
+
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+	TSharedRef<ITableRow> GenerateRow(TSharedPtr<FPythonTreeItem> InItem, const TSharedRef<STableViewBase>& OwnerTable);
+	void GetChildren(TSharedPtr<FPythonTreeItem> InItem, TArray<TSharedPtr<FPythonTreeItem>>& OutChildren);
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 #if WITH_EDITOR
 	void OnAssetDoubleClicked(const FAssetData& AssetData);
@@ -47,6 +59,14 @@ public:
 	void MenuPyAssetBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);
 	void OnAssetChanged(const FAssetData &AssetData);
 	bool OnShouldFilterAsset(const FAssetData& AssetData);
+
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+	TSharedRef<FExtender> OnExtendACEDModeMenu(const TArray<FAssetData> &SelectedAssets);
+	void ACEDModeMenuBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
+
 #endif
 
 	void OnWindowClosed(const TSharedRef<SWindow> &Window);
@@ -56,6 +76,11 @@ public:
 	TSharedRef<SWidget> OnGenerateWidget(TSharedPtr<FPythonItem> py_item);
 	TSharedRef<SWidget> OnGetMenuContent();
 	void OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type);
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+	void OnSelectionChanged(TSharedPtr<FPythonTreeItem> py_item, ESelectInfo::Type select_type);
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	void SimpleExecuteAction();
 	void ExecuteAction(PyObject *py_obj);

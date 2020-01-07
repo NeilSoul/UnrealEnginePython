@@ -104,6 +104,11 @@
 #include "UEPyIStructureDetailsView.h"
 #include "UEPySNodePanel.h"
 #include "UEPySGraphPanel.h"
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+#include "AdvancedCharacterEditorModule.h"
+// DK End
+//////////////////////////////////////////////////////////////////////////
 #endif
 
 #include "Runtime/Core/Public/Misc/Attribute.h"
@@ -426,6 +431,24 @@ TSharedRef<FExtender> FPythonSlateDelegate::OnExtendContentBrowserMenu(const TAr
 	return Extender;
 }
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+TSharedRef<FExtender> FPythonSlateDelegate::OnExtendACEDModeMenu(const TArray<FAssetData> &SelectedAssets)
+{
+	TSharedRef<FExtender> Extender(new FExtender());
+
+	Extender->AddMenuExtension((char *)"Custom", EExtensionHook::After, nullptr, FMenuExtensionDelegate::CreateSP(this, &FPythonSlateDelegate::ACEDModeMenuBuilder, SelectedAssets));
+
+	return Extender;
+}
+
+void FPythonSlateDelegate::ACEDModeMenuBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets)
+{
+	return MenuPyAssetBuilder(Builder, SelectedAssets);
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 #endif
 
 
@@ -508,6 +531,28 @@ void FPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, E
 	}
 	Py_DECREF(ret);
 }
+
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+void FPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonTreeItem> py_item, ESelectInfo::Type select_type)
+{
+	if (!py_item.IsValid())
+	{
+		return;
+	}
+
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"Oi", py_item.Get()->py_object, (int)select_type);
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 TSharedPtr<SWidget> FPythonSlateDelegate::OnContextMenuOpening()
 {
@@ -786,6 +831,23 @@ TSharedRef<SDockTab> FPythonSlateDelegate::SpawnPythonTab(const FSpawnTabArgs &a
 	return dock_tab;
 }
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+void FPythonSlateDelegate::OnTabClosed(TSharedRef<SDockTab> DockTab)
+{
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char *)"N", py_ue_new_swidget<ue_PySDockTab>(StaticCastSharedRef<SWidget>(DockTab), &ue_PySDockTabType));
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 TSharedRef<ITableRow> FPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonItem> InItem, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	FScopePythonGIL gil;
@@ -841,6 +903,78 @@ void FPythonSlateDelegate::GetChildren(TSharedPtr<FPythonItem> InItem, TArray<TS
 	Py_DECREF(py_iterable);
 	Py_DECREF(ret);
 }
+
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+TSharedRef<ITableRow> FPythonSlateDelegate::GenerateRow(TSharedPtr<FPythonTreeItem> InItem, const TSharedRef<STableViewBase>& OwnerTable)
+{
+	FScopePythonGIL gil;
+
+	PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
+	}
+
+	if (ue_PySPythonMultiColumnTableRow *spython_multicolumn_table_row = py_ue_is_spython_multicolumn_table_row(ret))
+	{
+		return StaticCastSharedRef<SPythonMultiColumnTableRow>(spython_multicolumn_table_row->s_compound_widget.s_widget.Widget->AsShared());
+	}
+
+	TSharedPtr<SWidget> Widget = py_ue_is_swidget<SWidget>(ret);
+	Py_DECREF(ret);
+	if (Widget.IsValid())
+	{
+		return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable).Content()[Widget.ToSharedRef()];
+	}
+
+	PyErr_Clear();
+
+	UE_LOG(LogPython, Error, TEXT("python callable did not return a SWidget"));
+	return SNew(STableRow<TSharedPtr<FPythonItem>>, OwnerTable);
+
+}
+
+void FPythonSlateDelegate::GetChildren(TSharedPtr<FPythonTreeItem> InItem, TArray<TSharedPtr<FPythonTreeItem>>& OutChildren)
+{
+	FPythonTreeItem* TreeItem = InItem.Get();
+	if (TreeItem)
+	{
+		if (InItem->children.Num() <= 0)
+		{
+			FScopePythonGIL gil;
+
+			PyObject *ret = PyObject_CallFunction(py_callable, (char*)"O", InItem.Get()->py_object);
+			if (!ret)
+			{
+				unreal_engine_py_log_error();
+				return;
+			}
+			PyObject *py_iterable = PyObject_GetIter(ret);
+			if (!py_iterable || !PyIter_Check(py_iterable))
+			{
+				UE_LOG(LogPython, Error, TEXT("returned value is not iterable"));
+				Py_XDECREF(py_iterable);
+				Py_DECREF(ret);
+				return;
+			}
+
+			while (PyObject *item = PyIter_Next(py_iterable))
+			{
+				Py_INCREF(item);
+				InItem->children.Add(TSharedPtr<FPythonTreeItem>(new FPythonTreeItem(item)));
+			}
+			Py_DECREF(py_iterable);
+			Py_DECREF(ret);
+		}
+
+		OutChildren = InItem->children;
+	}
+
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 ue_PySWidget *ue_py_get_swidget(TSharedRef<SWidget> s_widget)
 {
@@ -1099,6 +1233,11 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 	char     *py_name_area_settings = nullptr;
 	PyObject *py_hide_selection_tip = nullptr;
 	PyObject *py_search_initial_key_focus = nullptr;
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyDetailView) modifier:(xingtongli)
+	PyObject *py_category_filter = nullptr;
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	char *kwlist[] = {
 		(char *)"uobject",
@@ -1109,10 +1248,24 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 		(char *)"name_area_settings",
 		(char *)"hide_selection_tip",
 		(char *)"search_initial_key_focus",
+		//////////////////////////////////////////////////////////////////////////
+		// DK Begin: ID(#DK_PyDetailView) modifier:(xingtongli)
+		(char *)"category_filter",
+		// DK End
+		//////////////////////////////////////////////////////////////////////////
 		nullptr };
 
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyDetailView) modifier:(xingtongli)
+#if 0
 	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOO:create_detail_view", kwlist,
 		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus))
+#else
+	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|OOOOsOOO:create_detail_view", kwlist,
+		&py_object, &py_allow_search, &py_update_from_selection, &py_lockable, &py_name_area_settings, &py_hide_selection_tip, &py_search_initial_key_focus, &py_category_filter))
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	{
 		return nullptr;
 	}
@@ -1133,6 +1286,28 @@ PyObject *py_unreal_engine_create_detail_view(PyObject *self, PyObject * args, P
 		else if (FCString::Stricmp(*name_area_string, TEXT("ComponentsAndActorsUseNameArea")) == 0) { return FDetailsViewArgs::ENameAreaSettings::ComponentsAndActorsUseNameArea; }
 		else { return FDetailsViewArgs::ENameAreaSettings::ActorsUseNameArea; }
 	}();
+
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyDetailView) modifier:(xingtongli)
+	if (py_category_filter)
+	{
+		for (int32 Index = 0; Index < PyList_Size(py_category_filter); Index++)
+		{
+			char *name = NULL;
+			#if PY_MAJOR_VERSION >= 3
+				PyObject *item_name = PyUnicode_AsUTF8String(PyList_GetItem(py_category_filter, Index));
+				if (item_name)
+				{
+					name = PyBytes_AsString(item_name);
+				}
+			#else
+				name = PyString_AsString(PyList_GetItem(py_category_filter, Index)); 
+			#endif
+			view_args.CategoryFilters.Add(FString(UTF8_TO_TCHAR(name)));
+		}
+	}
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	TSharedPtr<IDetailsView> view = PropertyEditorModule.CreateDetailView(view_args);
 
@@ -1300,6 +1475,15 @@ PyObject *py_unreal_engine_add_menu_extension(PyObject * self, PyObject * args)
 		IStaticMeshEditorModule &Module = FModuleManager::LoadModuleChecked<IStaticMeshEditorModule>(module);
 		menu_extension_interface = (IHasMenuExtensibility *)&Module;
 	}
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+	else if (!strcmp(module, (char *)"AdvancedCharacterEditor"))
+	{
+		FAdvancedCharacterEditorModule &Module = FModuleManager::LoadModuleChecked<FAdvancedCharacterEditorModule>(module);
+		menu_extension_interface = (IHasMenuExtensibility *)&Module;
+	}
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	if (!menu_extension_interface)
 		return PyErr_Format(PyExc_Exception, "module %s is not supported", module);
@@ -1412,6 +1596,35 @@ PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self
 
 	Py_RETURN_NONE;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+PyObject *py_unreal_engine_add_acedmode_menu_extension(PyObject * self, PyObject * args)
+{
+
+	PyObject *py_callable;
+
+	if (!PyArg_ParseTuple(args, "O:add_accharacter_edmod_menu_extension", &py_callable))
+	{
+		return NULL;
+	}
+
+	if (!PyCallable_Check(py_callable))
+		return PyErr_Format(PyExc_Exception, "argument is not callable");
+
+	FAdvancedCharacterEditorModule &Module = FModuleManager::LoadModuleChecked<FAdvancedCharacterEditorModule>(TEXT("AdvancedCharacterEditor"));
+	TArray<FACEDModeMenuExtenderDelegate> &MenuExtenderDelegates = Module.GetACEDModeMenuExtenderDelegates();
+
+	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+	FACEDModeMenuExtenderDelegate handler;
+	handler.BindSP(py_delegate, &FPythonSlateDelegate::OnExtendACEDModeMenu);
+	MenuExtenderDelegates.Add(handler);
+
+	Py_RETURN_NONE;
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 #endif
 
 PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject * args)
@@ -1420,10 +1633,25 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 	char *name;
 	PyObject *py_callable;
 	PyObject *py_icon = nullptr;
+	//////////////////////////////////////////////////////////////////////////
+    // DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+#if 0
 	if (!PyArg_ParseTuple(args, "sO|O:register_nomad_tab_spawner", &name, &py_callable, &py_icon))
 	{
 		return NULL;
 	}
+#else
+    int menu_type = 0;
+    // 0, Enabled,		// Display this spawner in menus
+    // 1, Disabled,		// Display this spawner in menus, but make it disabled
+    // 2, Hidden,			// Do not display this spawner in menus, it will be invoked manually
+	if (!PyArg_ParseTuple(args, "sO|Oi:register_nomad_tab_spawner", &name, &py_callable, &py_icon, &menu_type))
+	{
+		return NULL;
+	}
+#endif
+    // DK End
+    //////////////////////////////////////////////////////////////////////////
 
 	if (!PyCallable_Check(py_callable))
 		return PyErr_Format(PyExc_Exception, "argument is not callable");
@@ -1453,6 +1681,11 @@ PyObject *py_unreal_engine_register_nomad_tab_spawner(PyObject * self, PyObject 
 		.SetTooltipText(FText::FromString((TabName).ToString()))
 		.SetIcon(Icon)
 		// TODO: more generic way to set the group
+		// DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+#if 1
+        .SetMenuType((ETabSpawnerMenuType::Type)menu_type)
+#endif
+        // DK End
 #if WITH_EDITOR
 		.SetGroup(WorkspaceMenu::GetMenuStructure().GetDeveloperToolsMiscCategory())
 #endif

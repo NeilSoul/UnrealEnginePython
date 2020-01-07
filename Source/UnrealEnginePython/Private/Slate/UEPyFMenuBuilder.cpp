@@ -1,5 +1,7 @@
 #include "UEPyFMenuBuilder.h"
-
+// DK Begin : ID(#DK_PyMenu) modifer(shouwang)
+#include "UEPyFSlateIcon.h"
+// DK End
 #include "Wrappers/UEPyESlateEnums.h"
 
 static PyObject* py_ue_fmenu_builder_begin_section(ue_PyFMenuBuilder* self, PyObject* args)
@@ -39,8 +41,30 @@ static PyObject* py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder* self, PyO
 #else
 	int ui_action_type = EUserInterfaceActionType::Button;
 #endif
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+#if 0 
 	if (!PyArg_ParseTuple(args, "ssO|Oi:add_menu_entry", &label, &tooltip, &py_callable, &py_obj, &ui_action_type))
 		return nullptr;
+#else
+	PyObject *py_icon = nullptr;
+	if (!PyArg_ParseTuple(args, "ssO|OOi:add_menu_entry", &label, &tooltip, &py_callable, &py_icon, &py_obj, &ui_action_type))
+		return nullptr;
+
+	FSlateIcon Icon = FSlateIcon();
+	if (py_icon)
+	{
+		ue_PyFSlateIcon *slate_icon = py_ue_is_fslate_icon(py_icon);
+		if (!slate_icon)
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a FSlateIcon");
+		}
+		Icon = slate_icon->icon;
+	}
+#endif
+	
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	if (!PyCallable_Check(py_callable))
 	{
@@ -61,12 +85,25 @@ static PyObject* py_ue_fmenu_builder_add_menu_entry(ue_PyFMenuBuilder* self, PyO
 		handler.BindSP(py_delegate, &FPythonSlateDelegate::SimpleExecuteAction);
 	}
 
+// DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+#if 0
 	self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), FSlateIcon(), FUIAction(handler), NAME_None,
 #if ENGINE_MINOR_VERSION >= 23
 		(EUserInterfaceActionType)ui_action_type);
 #else
 		(EUserInterfaceActionType::Type)ui_action_type);
 #endif
+
+#else
+	self->menu_builder.AddMenuEntry(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), Icon, FUIAction(handler), NAME_None,
+#if ENGINE_MINOR_VERSION >= 23
+		(EUserInterfaceActionType)ui_action_type);
+#else
+		(EUserInterfaceActionType::Type)ui_action_type);
+#endif
+
+#endif
+// DK End
 
 	Py_RETURN_NONE;
 }

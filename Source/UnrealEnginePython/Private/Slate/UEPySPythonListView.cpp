@@ -90,6 +90,14 @@ static PyObject *py_spython_list_view_update_item_source_list(ue_PySPythonListVi
 	self->item_source_list.Empty();
 
 	Move<TArray<TSharedPtr<FPythonItem>>>(self->item_source_list, tempNewArray);
+
+	///////////////////////////////////////////////////
+	// DK Begin:(ID)(#DK_PyDataTable) modifier(shouwang)
+	ue_py_slate_cast(SPythonListView);
+	py_SPythonListView->RequestListRefresh();
+	// DK End
+	//////////////////////////////////////////////////
+
 	Py_RETURN_NONE;
 }
 

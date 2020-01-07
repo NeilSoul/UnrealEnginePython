@@ -1,45 +1,57 @@
 {
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0",
-	"FriendlyName": "UnrealEnginePython",
-	"Description": "Embed a Python VM in your project",
-	"Category": "Scripting Languages",
-	"CreatedBy": "Roberto De Ioris",
-	"CreatedByURL": "",
-	"DocsURL": "",
-	"MarketplaceURL": "",
-	"SupportURL": "",
-	"EnabledByDefault": true,
-	"CanContainContent": true,
-	"IsBetaVersion": true,
-	"Installed": false,
-  "Modules": [
-    {
-      "Name": "UnrealEnginePython",
-      "Type": "Runtime",
-      "LoadingPhase": "Default"
-    },
-    {
-      "Name": "PythonAutomation",
-      "Type": "Editor",
-      "LoadingPhase": "PostDefault"
-    },
-    {
-      "Name": "PythonConsole",
-      "Type": "Editor",
-      "LoadingPhase": "PostDefault"
-    },
-    {
-      "Name": "PythonEditor",
-      "Type": "Editor",
-      "LoadingPhase": "PostDefault"
-    }
-  ],
-  "Plugins": [
-    {
-      "Name": "LevelSequenceEditor",
-      "Enabled": true
-    }
-  ]
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "1.0",
+    "FriendlyName": "UnrealEnginePython",
+    "Description": "Embed a Python VM in your project",
+    "Category": "Scripting Languages",
+    "CreatedBy": "Roberto De Ioris",
+    "CreatedByURL": "",
+    "DocsURL": "",
+    "MarketplaceURL": "",
+    "SupportURL": "",
+    "EnabledByDefault": true,
+    "CanContainContent": true,
+    "IsBetaVersion": true,
+    "Installed": false,
+    "Modules": [
+        {
+            "Name": "UnrealEnginePython",
+            "Type": "Editor",
+            "LoadingPhase": "PreDefault",
+            "WhitelistPlatforms": ["Win64"]
+        },
+        {
+            "Name": "PythonAutomation",
+            "Type": "Editor",
+            "LoadingPhase": "PostDefault",
+            "WhitelistPlatforms": ["Win64"]
+        },
+        {
+            "Name": "PythonConsole",
+            "Type": "Editor",
+            "LoadingPhase": "PostDefault",
+            "WhitelistPlatforms": ["Win64"]
+        },
+        {
+            "Name": "PythonEditor",
+            "Type": "Editor",
+            "LoadingPhase": "PostDefault",
+            "WhitelistPlatforms": ["Win64"]
+        }
+    ],
+    "Plugins": [
+        {
+            "Name": "LevelSequenceEditor",
+            "Enabled": true
+        },
+        {
+            "Name": "ChloePython2",
+            "Enabled": true
+        },
+        {
+            "Name" : "AdvancedCharacter",
+            "Enabled" : true
+        },
+    ]
 }

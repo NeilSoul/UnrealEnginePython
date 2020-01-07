@@ -25,12 +25,16 @@
 #include <Python.h>
 #include <structmember.h>
 #elif PLATFORM_WINDOWS
-#include <include/pyconfig.h>
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#include "pyconfig.h"//<include/pyconfig.h>
+// DK End
 #ifndef SIZEOF_PID_T
 #define SIZEOF_PID_T 4
 #endif
-#include <include/Python.h>
-#include <include/structmember.h>
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#include "Python.h"//<include/Python.h>
+#include "structmember.h"//<include/structmember.h>
+// DK End
 #endif
 
 typedef struct

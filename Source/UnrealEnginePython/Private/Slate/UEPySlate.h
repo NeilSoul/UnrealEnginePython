@@ -58,6 +58,13 @@ PyObject *py_unreal_engine_create_structure_detail_view(PyObject *, PyObject *, 
 PyObject *py_unreal_engine_create_property_view(PyObject *, PyObject *, PyObject *);
 
 PyObject *py_unreal_engine_add_asset_view_context_menu_extension(PyObject * self, PyObject *);
+
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
+PyObject *py_unreal_engine_add_acedmode_menu_extension(PyObject * self, PyObject *);
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 #endif
 
 PyObject *py_unreal_engine_invoke_tab(PyObject *, PyObject *);

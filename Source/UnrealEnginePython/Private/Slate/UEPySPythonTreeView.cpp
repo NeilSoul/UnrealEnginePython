@@ -3,6 +3,11 @@
 
 #include "Runtime/Slate/Public/Widgets/Views/STreeView.h"
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+#include "UEPySHeaderRow.h"
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 
 static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView *self, PyObject * args)
@@ -20,7 +25,11 @@ static PyObject *py_ue_spython_tree_view_set_item_expansion(ue_PySPythonTreeView
 
 void SPythonTreeView::SetPythonItemExpansion(PyObject *item, bool InShouldExpandItem)
 {
-	for (TSharedPtr<struct FPythonItem> PythonItem : *ItemsSource)
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+	for (TSharedPtr<struct FPythonTreeItem> PythonItem : *ItemsSource)
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	{
 		if (PythonItem->py_object == item)
 		{
@@ -29,8 +38,55 @@ void SPythonTreeView::SetPythonItemExpansion(PyObject *item, bool InShouldExpand
 	}
 }
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+static PyObject *py_spython_tree_view_update_item_source_list(ue_PySPythonTreeView *self, PyObject * args)
+{
+	PyObject *values;
+	if (!PyArg_ParseTuple(args, "O:update_item_source_list", &values))
+	{
+		return NULL;
+	}
+
+	values = PyObject_GetIter(values);
+	if (!values)
+	{
+		return PyErr_Format(PyExc_Exception, "argument is not an iterable");
+	}
+
+	//NOTE: ikrimae: Increment first so we don't decrement and destroy python objects that 
+	//we're passing in e.g. if you pass the same item source array into update_items(). 
+	//Might not be necessary but I'm not too familiar with python's GC
+	TArray<TSharedPtr<FPythonTreeItem>> tempNewArray;
+	while (PyObject *item = PyIter_Next(values))
+	{
+		Py_INCREF(item);
+		tempNewArray.Add(TSharedPtr<FPythonTreeItem>(new FPythonTreeItem(item)));
+	}
+
+	for (TSharedPtr<struct FPythonTreeItem>& item : self->item_source_list)
+	{
+		Py_XDECREF(item->py_object);
+		item->children.Empty();
+	}
+	self->item_source_list.Empty();
+
+	Move<TArray<TSharedPtr<FPythonTreeItem>>>(self->item_source_list, tempNewArray);
+
+	ue_py_slate_cast(SPythonTreeView);
+	py_SPythonTreeView->SetListItemsSource(self->item_source_list);
+	Py_RETURN_NONE;
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 static PyMethodDef ue_PySPythonTreeView_methods[] = {
 	{ "set_item_expansion", (PyCFunction)py_ue_spython_tree_view_set_item_expansion, METH_VARARGS, "" },
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+	{ "update_item_source_list", (PyCFunction)py_spython_tree_view_update_item_source_list, METH_VARARGS, "" },
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	{ NULL }  /* Sentinel */
 };
 
@@ -85,6 +141,9 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 		return -1;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+#if 0
 	TArray<TSharedPtr<FPythonItem>> *items = new TArray<TSharedPtr<FPythonItem>>();
 	while (PyObject *item = PyIter_Next(values))
 	{
@@ -94,19 +153,48 @@ static int ue_py_spython_tree_view_init(ue_PySPythonTreeView *self, PyObject *ar
 	Py_DECREF(values);
 
 	arguments.TreeItemsSource(items);
+#else
+	self->item_source_list.Empty();
+	while (PyObject *item = PyIter_Next(values))
+	{
+		Py_INCREF(item);
+		self->item_source_list.Add(TSharedPtr<FPythonTreeItem>(new FPythonTreeItem(item)));
+	}
+
+	arguments.TreeItemsSource(&self->item_source_list);
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	ue_py_slate_farguments_optional_enum("allow_overscroll", AllowOverscroll, EAllowOverscroll);
 	ue_py_slate_farguments_optional_bool("clear_selection_on_click", ClearSelectionOnClick);
 	ue_py_slate_farguments_optional_enum("consume_mouse_wheel", ConsumeMouseWheel, EConsumeMouseWheel);
 	ue_py_slate_farguments_float("item_height", ItemHeight);
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+#if 0
 	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateRow, GenerateRow);
 	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
+#else
+	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonTreeItem>>::FOnGenerateRow, GenerateRow);
+	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonTreeItem>>::FOnSelectionChanged, OnSelectionChanged);
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	ue_py_slate_farguments_enum("selection_mode", SelectionMode, ESelectionMode::Type);
 #if ENGINE_MINOR_VERSION > 12
 	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
 #endif
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyTreeView) modifier:(xingtongli)
+#if 0
 	ue_py_slate_farguments_event("on_get_children", OnGetChildren, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGetChildren, GetChildren);
-
+#else
+	ue_py_slate_farguments_event("on_get_children", OnGetChildren, TSlateDelegates<TSharedPtr<FPythonTreeItem>>::FOnGetChildren, GetChildren);
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
+	
 	ue_py_snew(SPythonTreeView);
 	return 0;
 }

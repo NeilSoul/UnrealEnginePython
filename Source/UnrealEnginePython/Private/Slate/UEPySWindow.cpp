@@ -197,6 +197,59 @@ static PyObject *py_ue_swindow_get_child_windows(ue_PySWindow *self, PyObject * 
 	return py_list;
 }
 
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyUMG) modifier(xinweitang)
+static PyObject* py_ue_swindow_create_umg(ue_PySWindow* self, PyObject* args)
+{
+	//ue_py_slate_cast(SWindow);
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O", &py_obj))
+	{
+		return NULL;
+	}
+	ue_PyUObject *py_uobj = ue_is_pyuobject(py_obj);
+	if (!py_uobj)
+	{
+		return NULL;
+	}
+
+	UClass* BlueprintClass = Cast<UClass>(py_uobj->ue_object);
+	if (!BlueprintClass)
+	{
+		return NULL;
+	}
+	TSubclassOf<UUserWidget> WidgetClass = BlueprintClass;
+	UWorld* World = GEditor->GetEditorWorldContext().World();
+	check(World);
+	UUserWidget* CreatedUMGWidget = NewObject<UUserWidget>((UObject*)GetTransientPackage(), WidgetClass);
+	check(CreatedUMGWidget);
+	TSharedRef<SWidget> TabWidget = SNullWidget::NullWidget;
+	PyObject* py_list = PyList_New(0);
+	if (CreatedUMGWidget)
+	{
+		TSharedRef<SWidget> CreatedSlateWidget = CreatedUMGWidget->TakeWidget();
+		TabWidget = SNew(SVerticalBox)
+			+ SVerticalBox::Slot()
+			.HAlign(HAlign_Fill)
+			[
+				CreatedSlateWidget
+			];
+		PyObject* swidget = (PyObject*)py_ue_new_swidget<SVerticalBox>(TabWidget, &ue_PySWidgetType);
+		PyList_Append(py_list, swidget);
+		Py_DECREF(swidget);
+		ue_PyUObject* umg = ue_get_python_uobject(CreatedUMGWidget);
+		if (umg && umg->py_proxy)
+		{
+			PyList_Append(py_list, umg->py_proxy);
+			//Py_DECREF(umg->py_proxy);
+		}
+		return py_list;
+	}
+	return py_list;
+}
+//DK End
+/////////////////////////////////////////////////////////////
+
 static PyMethodDef ue_PySWindow_methods[] = {
 	{ "get_child_windows", (PyCFunction)py_ue_swindow_get_child_windows, METH_VARARGS, "" },
 	{ "set_title", (PyCFunction)py_ue_swindow_set_title, METH_VARARGS, "" },
@@ -214,6 +267,11 @@ static PyMethodDef ue_PySWindow_methods[] = {
 	{ "add_modal", (PyCFunction)py_ue_swindow_add_modal, METH_VARARGS, "" },
 #endif
 	{ "add_child", (PyCFunction)py_ue_swindow_add_child, METH_VARARGS, "" },
+	/////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyUMG) modifier(xinweitang)
+	{ "create_umg", (PyCFunction)py_ue_swindow_create_umg, METH_STATIC | METH_VARARGS, ""},
+	//DK End
+	/////////////////////////////////////////////////////////////
 	{ NULL }  /* Sentinel */
 };
 

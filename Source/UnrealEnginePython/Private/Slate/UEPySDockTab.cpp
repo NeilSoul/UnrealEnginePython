@@ -33,10 +33,43 @@ static PyObject *py_ue_sdock_tab_new_tab_manager(ue_PySDockTab *self, PyObject *
 	return py_ue_new_ftab_manager(tab_manager);
 }
 
+////////////////////////////////////////////////////////////////
+// DK Begin:ID(#DK_PyMenu) modifier:(shouwang)
+static PyObject *py_ue_sdock_tab_set_on_tab_closed(ue_PySDockTab *self, PyObject * args)
+{
+	ue_py_slate_cast(SDockTab);
+
+	PyObject *on_closed;
+	if (!PyArg_ParseTuple(args, "O:set_on_tab_closed", &on_closed))
+	{
+		return nullptr;
+	}
+
+	if (on_closed && PyCallable_Check(on_closed))
+	{
+		SDockTab::FOnTabClosedCallback handler;
+		TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewSlateDelegate(self->s_border.s_compound_widget.s_widget.Widget, on_closed);
+		handler.BindSP(py_delegate, &FPythonSlateDelegate::OnTabClosed);
+
+		py_SDockTab->SetOnTabClosed(handler);
+	}
+
+	
+
+	Py_RETURN_SLATE_SELF;
+}
+// DK End
+////////////////////////////////////////////////////////////////
+
 static PyMethodDef ue_PySDockTab_methods[] = {
 	{ "set_label", (PyCFunction)py_ue_sdock_tab_set_label, METH_VARARGS, "" },
 	{ "request_close_tab", (PyCFunction)py_ue_sdock_tab_request_close_tab, METH_VARARGS, "" },
 	{ "new_tab_manager", (PyCFunction)py_ue_sdock_tab_new_tab_manager, METH_VARARGS, "" },
+	//////////////////////////////////////////////////////////////////
+	// DK Begin:ID(#DK_PyMenu) modifier:(shouwang)
+	{ "set_on_tab_closed", (PyCFunction)py_ue_sdock_tab_set_on_tab_closed, METH_VARARGS, "" },
+	// DK End
+	//////////////////////////////////////////////////////////////////
 	{ NULL }  /* Sentinel */
 };
 

@@ -2,6 +2,38 @@
 
 #include "UEPyUScriptStruct.h"
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyStruct) modifier:(shouwang)
+// Move get filed from name position
+static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
+{
+	FString attr = UTF8_TO_TCHAR(name);
+	UProperty *u_property = u_struct->FindPropertyByName(FName(*attr));
+	if (u_property)
+		return u_property;
+
+#if WITH_EDITOR
+	static const FName DisplayNameKey(TEXT("DisplayName"));
+
+	// if the property is not found, attempt to search for DisplayName
+	for (TFieldIterator<UProperty> prop(u_struct); prop; ++prop)
+	{
+		UProperty *property = *prop;
+		if (property->HasMetaData(DisplayNameKey))
+		{
+			FString display_name = property->GetMetaData(DisplayNameKey);
+			if (display_name.Len() > 0 && attr.Equals(display_name))
+			{
+				return property;
+			}
+		}
+	}
+#endif
+
+	return nullptr;
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObject * args)
 {
@@ -12,9 +44,21 @@ static PyObject *py_ue_uscriptstruct_get_field(ue_PyUScriptStruct *self, PyObjec
 		return nullptr;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyStruct) modifier:(shouwang)
+#if 0
 	UProperty *u_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
+#else
+	UProperty *u_property = get_field_from_name(self->u_struct, name);
+	if (!u_property)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
+	}
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	return ue_py_convert_property(u_property, self->u_struct_ptr, index);
 }
@@ -44,10 +88,21 @@ static PyObject *py_ue_uscriptstruct_set_field(ue_PyUScriptStruct *self, PyObjec
 		return nullptr;
 	}
 
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyStruct) modifier:(shouwang)
+#if 0
 	UProperty *u_property = self->u_struct->FindPropertyByName(FName(UTF8_TO_TCHAR(name)));
 	if (!u_property)
 		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
-
+#else
+	UProperty *u_property = get_field_from_name(self->u_struct, name);
+	if (!u_property)
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find property %s", name);
+	}
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	if (!ue_py_convert_pyobject(value, u_property, self->u_struct_ptr, index))
 	{
@@ -143,6 +198,10 @@ static PyObject *ue_PyUScriptStruct_str(ue_PyUScriptStruct *self)
 		TCHAR_TO_UTF8(*self->u_struct->GetName()), self->u_struct->GetStructureSize(), self->u_struct_ptr);
 }
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyStruct) modifier:(shouwang)
+// Move get filed from name position
+#if 0
 static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 {
 	FString attr = UTF8_TO_TCHAR(name);
@@ -170,6 +229,9 @@ static UProperty *get_field_from_name(UScriptStruct *u_struct, char *name)
 
 	return nullptr;
 }
+#endif
+// DK End
+/////////////////////////////////////////////////////////////////
 
 UProperty *ue_struct_get_field_from_name(UScriptStruct *u_struct, char *name)
 {

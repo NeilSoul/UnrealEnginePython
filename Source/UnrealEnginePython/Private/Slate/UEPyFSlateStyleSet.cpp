@@ -51,7 +51,11 @@ static PyObject *py_ue_fslate_style_set_set(ue_PyFSlateStyleSet *self, PyObject 
 	}
 
 	FSlateColor *slate_color = ue_py_check_struct<FSlateColor>(py_value);
-	if (slate_brush)
+	///////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyEditor_01) modifier : shouwang
+	if (slate_color)
+	// Dk End
+	////////////////////////////////////
 	{
 		self->style_set->Set(FName(name), *slate_color);
 		Py_RETURN_NONE;

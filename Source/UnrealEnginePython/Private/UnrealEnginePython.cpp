@@ -244,6 +244,10 @@ void FUnrealEnginePythonModule::StartupModule()
 {
 	BrutalFinalize = false;
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#if 0
+
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	FString PythonHome;
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni))
@@ -339,11 +343,61 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*ProjectScriptsPath);
 	}
 	ScriptsPaths.Add(ProjectScriptsPath);
+#else
+	// Set-up the correct program name
+	FString ProgramName = FPlatformProcess::GetCurrentWorkingDirectory() / FPlatformProcess::ExecutableName(false);
+	FPaths::NormalizeFilename(ProgramName);
+#if PY_MAJOR_VERSION >= 3
+	wchar_t *PyProgramName = (wchar_t *)*ProgramName;
+#else
+	char *PyProgramName = TCHAR_TO_UTF8(*ProgramName);
+#endif
+
+	// Set-up the correct home path
+#if PY_MAJOR_VERSION >= 3
+	wchar_t *PyHomePath;
+#else
+	char *PyHomePath;
+#endif
+	FString PythonDir = UTF8_TO_TCHAR(UE_PYTHON_DIR);
+	PythonDir.ReplaceInline(TEXT("{ENGINE_DIR}"), *FPaths::EngineDir(), ESearchCase::CaseSensitive);
+	PythonDir.ReplaceInline(TEXT("{PROJECT_DIR}"), *FPaths::ProjectDir(), ESearchCase::CaseSensitive);
+	PythonDir = FPaths::ConvertRelativePathToFull(*PythonDir);
+	FPaths::NormalizeDirectoryName(PythonDir);
+	FPaths::RemoveDuplicateSlashes(PythonDir);
+#if PY_MAJOR_VERSION >= 3
+	PyHomePath = const_cast<TCHAR*>(TCHAR_TO_WCHAR(*PythonDir));
+#else
+	PyHomePath = TCHAR_TO_UTF8(*PythonDir);
+#endif
+
+#if PY_MAJOR_VERSION >= 3
+    FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("PythonScripts_3"));
+#else
+	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("PythonScripts"));
+#endif
+	ProjectScriptsPath = FPaths::ConvertRelativePathToFull(*ProjectScriptsPath);
+	if (!FPaths::DirectoryExists(ProjectScriptsPath))
+	{
+		FPlatformFileManager::Get().GetPlatformFile().CreateDirectory(*ProjectScriptsPath);
+	}
+	ScriptsPaths.Add(ProjectScriptsPath);
+#endif
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 #if WITH_EDITOR
 	for (TSharedRef<IPlugin>plugin : IPluginManager::Get().GetEnabledPlugins())
 	{
+		//////////////////////////////////////////////////////////////////////////
+		// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#if 0
 		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("Scripts"));
+#else
+		FString PluginScriptsPath = FPaths::Combine(plugin->GetContentDir(), UTF8_TO_TCHAR("PythonScripts"));
+#endif
+		// DK End
+		//////////////////////////////////////////////////////////////////////////
 		if (FPaths::DirectoryExists(PluginScriptsPath))
 		{
 			ScriptsPaths.Add(PluginScriptsPath);
@@ -357,6 +411,9 @@ void FUnrealEnginePythonModule::StartupModule()
 	}
 #endif
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#if 0
 	if (ZipPath.IsEmpty())
 	{
 		ZipPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("ue_python.zip"));
@@ -405,6 +462,12 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
 	}
 
+#else
+	Py_SetProgramName(PyProgramName);
+	Py_SetPythonHome(PyHomePath);
+#endif
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 
 #if PY_MAJOR_VERSION >= 3
@@ -517,7 +580,9 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 	}
 
-
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_Py36) modifier:(shouwang)
+#if 0
 	for (FString ImportModule : ImportModules)
 	{
 		if (PyImport_ImportModule(TCHAR_TO_UTF8(*ImportModule)))
@@ -529,6 +594,9 @@ void FUnrealEnginePythonModule::StartupModule()
 			unreal_engine_py_log_error();
 		}
 	}
+#endif
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 	// release the GIL
 	PyThreadState *UEPyGlobalState = PyEval_SaveThread();

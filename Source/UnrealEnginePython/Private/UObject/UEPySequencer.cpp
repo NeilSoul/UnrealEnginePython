@@ -27,6 +27,12 @@
 #include "Runtime/MovieScene/Public/MovieSceneFolder.h"
 #include "Runtime/MovieScene/Public/MovieSceneSpawnable.h"
 #include "Runtime/MovieScene/Public/MovieScenePossessable.h"
+////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PySequencer_01) modifier:(shouwang)
+#include "Sections/MovieSceneEventSection.h"
+#include "Tracks/MovieScenePropertyTrack.h"
+// DK End
+////////////////////////////////////////////////////////////////////
 #if ENGINE_MINOR_VERSION < 18
 #include "Editor/UnrealEd/Private/FbxImporter.h"
 #else
@@ -42,6 +48,7 @@
 #if ENGINE_MINOR_VERSION >= 20
 #include "Wrappers/UEPyFFrameNumber.h"
 #endif
+
 
 
 #if ENGINE_MINOR_VERSION >= 20
@@ -541,6 +548,147 @@ PyObject *py_ue_sequencer_add_actor_component(ue_PyUObject *self, PyObject * arg
 
 	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
 }
+
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PySequencer_01) modifier(shouwang)
+PyObject * py_ue_sequencer_set_parent(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	char *guid;
+	char *parent_guid;
+	if (!PyArg_ParseTuple(args, "ss:ue_sequencer_set_parent", &guid, &parent_guid))
+	{
+		return nullptr;
+	}
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid))
+	{
+		return PyErr_Format(PyExc_Exception, "invalid GUID");
+	}
+
+	FGuid f_parent_guid;
+	if (!FGuid::Parse(FString(parent_guid), f_parent_guid))
+	{
+		return PyErr_Format(PyExc_Exception, "invalid GUID");
+	}
+
+	FMovieScenePossessable *possessable = scene->FindPossessable(f_guid);
+
+	if (!possessable)
+	{
+		return PyErr_Format(PyExc_Exception, "GUID not found");
+	}
+
+	possessable->SetParent(f_parent_guid);
+
+	Py_RETURN_TRUE;
+}
+
+PyObject * py_ue_sequencer_track_set_property(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	char *property_name;
+	char *property_path;
+	if (!PyArg_ParseTuple(args, "ss:_sequencer_track_set_property", &property_name, &property_path))
+	{
+		return NULL;
+	}
+
+	if (self->ue_object->IsA<UMovieScenePropertyTrack>())
+	{
+		UMovieScenePropertyTrack *track = (UMovieScenePropertyTrack *)self->ue_object;
+		track->SetPropertyNameAndPath(FName(property_name), FString(property_path));
+		track->SetDisplayName(FText::FromString(UTF8_TO_TCHAR(property_name)));
+	}
+	else
+	{
+		return PyErr_Format(PyExc_Exception, "the uobject does not expose the SetDisplayName() method");
+	}
+
+	Py_RETURN_NONE;
+
+}
+
+PyObject * py_ue_sequencer_find_track(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	PyObject *obj;
+	char *guid;
+	if (!PyArg_ParseTuple(args, "Os:sequencer_find_track", &obj, &guid))
+	{
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	ue_PyUObject *py_obj = ue_is_pyuobject(obj);
+	if (!py_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a uobject");
+
+	if (!py_obj->ue_object->IsA<UClass>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UClass");
+
+	UClass *u_class = (UClass *)py_obj->ue_object;
+
+	if (!u_class->IsChildOf<UMovieSceneTrack>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a UMovieSceneTrack class");
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid))
+	{
+		return PyErr_Format(PyExc_Exception, "invalid GUID");
+	}
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+	UMovieScene	*scene = seq->GetMovieScene();
+	UMovieSceneTrack *track = scene->FindTrack(u_class, f_guid);
+	if (!track)
+		return PyErr_Format(PyExc_Exception, "unable to find track");
+
+	Py_RETURN_UOBJECT(track);
+}
+
+PyObject * py_ue_sequencer_add_object(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	PyObject *py_obj;
+	if (!PyArg_ParseTuple(args, "O:sequencer_add_object", &py_obj))
+	{
+		return NULL;
+	}
+
+	if (!self->ue_object->IsA<ULevelSequence>())
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+
+	ue_PyUObject *py_ue_obj = ue_is_pyuobject(py_obj);
+	if (!py_ue_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a uobject");
+
+	ULevelSequence *seq = (ULevelSequence *)self->ue_object;
+
+	UMovieSceneSequence* uglyTemp = (UMovieSceneSequence *)seq;
+
+	FGuid new_guid = uglyTemp->CreatePossessable(py_ue_obj->ue_object);
+
+	if (!new_guid.IsValid())
+	{
+		return PyErr_Format(PyExc_Exception, "unable to find guid");
+	}
+
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*new_guid.ToString()));
+}
+
+// DK End
+/////////////////////////////////////////////////////////////
 
 PyObject *py_ue_sequencer_make_new_spawnable(ue_PyUObject *self, PyObject * args)
 {
@@ -1363,6 +1511,34 @@ PyObject *py_ue_sequencer_section_add_key(ue_PyUObject *self, PyObject * args)
 }
 	}
 
+/////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PySequencer_02) modifier(shouwang)
+	else if (auto section_event = Cast<UMovieSceneEventSection>(section))
+	{
+		if (ue_PyUScriptStruct *ue_py_struct = py_ue_is_uscriptstruct(py_value))
+		{
+			UProperty *ename_property = ue_py_struct->u_struct->FindPropertyByName(FName(TEXT("EventName")));
+			if (!ename_property)
+				return PyErr_Format(PyExc_Exception, "unable to find property %s", "EventName");
+
+			PyObject *py_ename = ue_py_convert_property(ename_property, ue_py_struct->u_struct_ptr, 0);
+
+			if (PyUnicodeOrString_Check(py_ename))
+			{
+				FName EventName = FName(UTF8_TO_TCHAR(UEPyUnicode_AsUTF8(py_ename)));
+				FMovieSceneEventSectionData* EventChannel = section_event->GetChannelProxy().GetChannel<FMovieSceneEventSectionData>(0);
+				check(EventChannel);
+				TMovieSceneChannelData<FEventPayload> ChannelData = EventChannel->GetData();
+				int32 RetValue = ChannelData.AddKey(FrameNumber, FEventPayload(EventName));
+				return PyLong_FromLong(RetValue);
+			}
+
+			Py_RETURN_NONE;
+		}
+
+	}
+// DK End
+/////////////////////////////////////////////////////////////
 	return PyErr_Format(PyExc_Exception, "unsupported section type: %s", TCHAR_TO_UTF8(*section->GetClass()->GetName()));
 }
 
@@ -1792,3 +1968,108 @@ PyObject *py_ue_sequencer_import_fbx_transform(ue_PyUObject *self, PyObject * ar
 }
 #endif
 
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PySequencer) modifier:(xingtongli)
+#if WITH_EDITOR
+PyObject * py_ue_sequencer_replace_spawnable(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	PyObject *new_obj;
+	char *guid;
+	if (!PyArg_ParseTuple(args, "Os:sequencer_replace_spawnable", &new_obj, &guid))
+	{
+		return nullptr;
+	}
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	ue_PyUObject *py_ue_obj = ue_is_pyuobject(new_obj);
+	if (!py_ue_obj)
+		return PyErr_Format(PyExc_Exception, "argument is not a uobject");
+
+	if (!py_ue_obj->ue_object->IsA<AActor>())
+		return PyErr_Format(PyExc_Exception, "argument is not an actor");
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid))
+	{
+		return PyErr_Format(PyExc_Exception, "invalid guid");
+	}
+
+	FMovieSceneSpawnable* spawnable = scene->FindSpawnable(f_guid);
+	if (spawnable)
+	{
+		spawnable->CopyObjectTemplate(*py_ue_obj->ue_object, *seq);
+		Py_RETURN_TRUE;
+	}
+
+	Py_RETURN_FALSE;
+}
+
+#endif
+
+PyObject *py_ue_sequencer_get_spawnable_count(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	return PyLong_FromLong(scene->GetSpawnableCount());
+}
+
+PyObject *py_ue_sequencer_get_spawnable_guid(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	int index = 0;
+	if (!PyArg_ParseTuple(args, "i:sequencer_get_spawnable_guid", &index))
+	{
+		return nullptr;
+	}
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	FMovieSceneSpawnable& spawnable = scene->GetSpawnable(index);
+	return PyUnicode_FromString(TCHAR_TO_UTF8(*spawnable.GetGuid().ToString()));
+}
+
+PyObject *py_ue_sequencer_get_spawnable_obj_template(ue_PyUObject *self, PyObject *args)
+{
+	ue_py_check(self);
+
+	char *guid;
+	if (!PyArg_ParseTuple(args, "s:sequencer_get_spawnable_obj_template", &guid))
+	{
+		return nullptr;
+	}
+
+	ULevelSequence *seq = ue_py_check_type<ULevelSequence>(self);
+	if (!seq)
+		return PyErr_Format(PyExc_Exception, "uobject is not a LevelSequence");
+	UMovieScene	*scene = seq->GetMovieScene();
+
+	FGuid f_guid;
+	if (!FGuid::Parse(FString(guid), f_guid))
+	{
+		return PyErr_Format(PyExc_Exception, "invalid guid");
+	}
+
+	FMovieSceneSpawnable* spawnable = scene->FindSpawnable(f_guid);
+	auto u_obj = spawnable ? spawnable->GetObjectTemplate() : nullptr;
+	if (!u_obj)
+		return PyErr_Format(PyExc_Exception, "unable to find get object template \"%s\"", guid);
+
+	Py_RETURN_UOBJECT(u_obj);
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////

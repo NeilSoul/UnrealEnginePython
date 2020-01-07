@@ -28,6 +28,11 @@
 UWorld *ue_get_uworld(ue_PyUObject *);
 AActor *ue_get_actor(ue_PyUObject *);
 PyObject *ue_py_convert_property(UProperty *, uint8 *, int32);
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyConvertProperty) modifier:(xingtongli)
+PyObject *ue_py_convert_property_struct_ownered(UProperty *, uint8 *, int32);
+// DK End
+//////////////////////////////////////////////////////////////////////////
 bool ue_py_convert_pyobject(PyObject *, UProperty *, uint8 *, int32);
 ue_PyUObject *ue_is_pyuobject(PyObject *);
 
