@@ -114,8 +114,30 @@ static PyObject* py_ue_fmenu_builder_add_sub_menu(ue_PyFMenuBuilder* self, PyObj
 	char* tooltip;
 	PyObject* py_callable;
 	PyObject* py_bool = nullptr;
+
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+#if 0 
 	if (!PyArg_ParseTuple(args, "ssO|O:add_sub_menu", &label, &tooltip, &py_callable, &py_bool))
 		return nullptr;
+#else
+	PyObject *py_icon = nullptr;
+	if (!PyArg_ParseTuple(args, "ssO|OO:add_sub_menu", &label, &tooltip, &py_callable, &py_icon, &py_bool))
+		return nullptr;
+
+	FSlateIcon Icon = FSlateIcon();
+	if (py_icon)
+	{
+		ue_PyFSlateIcon *slate_icon = py_ue_is_fslate_icon(py_icon);
+		if (!slate_icon)
+		{
+			return PyErr_Format(PyExc_Exception, "argument is not a FSlateIcon");
+		}
+		Icon = slate_icon->icon;
+	}
+#endif
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 	if (!PyCallable_Check(py_callable))
 	{
@@ -129,8 +151,15 @@ static PyObject* py_ue_fmenu_builder_add_sub_menu(ue_PyFMenuBuilder* self, PyObj
 	menu_delegate.BindSP(py_delegate, &FPythonSlateDelegate::SubMenuPyBuilder);
 
 
+	//////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyMenu) modifier:(shouwang)
+#if 0
 	self->menu_builder.AddSubMenu(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), menu_delegate, (py_bool && PyObject_IsTrue(py_bool)) ? true : false);
-
+#else
+	self->menu_builder.AddSubMenu(FText::FromString(UTF8_TO_TCHAR(label)), FText::FromString(UTF8_TO_TCHAR(tooltip)), menu_delegate, (py_bool && PyObject_IsTrue(py_bool)) ? true : false, Icon);
+#endif
+	// DK End
+	/////////////////////////////////////////////////////
 	Py_RETURN_NONE;
 }
 

@@ -61,6 +61,12 @@ public:
 	bool OnShouldFilterAsset(const FAssetData& AssetData);
 
 	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyCurveEditor) modifier:(xiaociye)
+	void OnMouseButtonDoubleClick(TSharedPtr<FPythonItem> py_item);
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
+
+	//////////////////////////////////////////////////////////////////////////
 	// DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
 	TSharedRef<FExtender> OnExtendACEDModeMenu(const TArray<FAssetData> &SelectedAssets);
 	void ACEDModeMenuBuilder(FMenuBuilder &Builder, TArray<FAssetData> SelectedAssets);

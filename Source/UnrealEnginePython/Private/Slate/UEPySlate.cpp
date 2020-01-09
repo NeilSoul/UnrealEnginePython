@@ -105,6 +105,11 @@
 #include "UEPySNodePanel.h"
 #include "UEPySGraphPanel.h"
 //////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyCurveEditor) modifier:(xiaociye)
+#include "UEPySCurveEditor.h"
+// DK End
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 // DK Begin: ID(#DK_PyACEDMode) modifier:(xingtongli)
 #include "AdvancedCharacterEditorModule.h"
 // DK End
@@ -513,6 +518,29 @@ TSharedRef<SWidget> FPythonSlateDelegate::OnGetMenuContent()
 	Py_DECREF(ret);
 	return RefWidget;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyCurveEditor) modifier:(xiaociye)
+void FPythonSlateDelegate::OnMouseButtonDoubleClick(TSharedPtr<FPythonItem> py_item)
+{
+	if (!py_item.IsValid())
+	{
+		return;
+	}
+
+	FScopePythonGIL gil;
+
+	PyObject* ret = PyObject_CallFunction(py_callable, (char*)"O", py_item.Get()->py_object);
+	if (!ret)
+	{
+		unreal_engine_py_log_error();
+		return;
+	}
+	Py_DECREF(ret);
+}
+// DK End
+//////////////////////////////////////////////////////////////////////////
+
 
 void FPythonSlateDelegate::OnSelectionChanged(TSharedPtr<FPythonItem> py_item, ESelectInfo::Type select_type)
 {
@@ -1060,6 +1088,7 @@ void ue_python_init_slate(PyObject *module)
 	ue_python_init_sdrop_target(module);
 	ue_python_init_sasset_drop_target(module);
 	ue_python_init_sobject_property_entry_box(module);
+	ue_python_init_scurve_editor(module);
 #endif
 
 	ue_python_init_ftab_manager(module);

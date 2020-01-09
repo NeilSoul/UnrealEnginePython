@@ -209,6 +209,11 @@ static int ue_py_spython_list_view_init(ue_PySPythonListView *self, PyObject *ar
 	ue_py_slate_farguments_float("item_height", ItemHeight);
 	ue_py_slate_farguments_event("on_generate_row", OnGenerateRow, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnGenerateRow, GenerateRow);
 	ue_py_slate_farguments_event("on_selection_changed", OnSelectionChanged, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnSelectionChanged, OnSelectionChanged);
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyCurveEditor) modifier:(xiaociye)
+	ue_py_slate_farguments_event("on_mouse_button_double_click", OnMouseButtonDoubleClick, TSlateDelegates<TSharedPtr<FPythonItem>>::FOnMouseButtonDoubleClick, OnMouseButtonDoubleClick);
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	ue_py_slate_farguments_enum("selection_mode", SelectionMode, ESelectionMode::Type);
 #if ENGINE_MINOR_VERSION > 12
 	ue_py_slate_farguments_optional_float("wheel_scroll_multiplier", WheelScrollMultiplier);
