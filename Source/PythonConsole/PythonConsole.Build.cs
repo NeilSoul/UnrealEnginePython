@@ -36,7 +36,7 @@ public class PythonConsole : ModuleRules
                 "UnrealEnginePython",
                 //////////////////////////////////////////////////////////////////////////
                 // DK Begin: ID(#DK_Py36) modifier:(shouwang)
-                "ChloePython2",
+                "ChloePython",
                 // DK End
                 //////////////////////////////////////////////////////////////////////////
             }

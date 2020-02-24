@@ -133,7 +133,7 @@ public class UnrealEnginePython : ModuleRules
         // DK Begin: ID(#DK_Py36) modifier:(shouwang)
         PrivateIncludePathModuleNames.AddRange(
             new string[] {
-                "ChloePython2",
+                "ChloePython",
             }
         );
         // DK End
@@ -225,7 +225,7 @@ public class UnrealEnginePython : ModuleRules
                 //////////////////////////////////////////////////////////////////////////
                 // DK Begin: ID(#DK_Py36) modifier:(shouwang)
                 "DesktopPlatform",
-                "ChloePython2",
+                "ChloePython",
                 // DK End
                 //////////////////////////////////////////////////////////////////////////
             });

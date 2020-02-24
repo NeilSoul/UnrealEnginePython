@@ -387,7 +387,7 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 
 #if PY_MAJOR_VERSION >= 3
-    FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("PythonScripts_3"));
+    FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("PyScript"));
 #else
 	FString ProjectScriptsPath = FPaths::Combine(*PROJECT_CONTENT_DIR, UTF8_TO_TCHAR("PythonScripts"));
 #endif
