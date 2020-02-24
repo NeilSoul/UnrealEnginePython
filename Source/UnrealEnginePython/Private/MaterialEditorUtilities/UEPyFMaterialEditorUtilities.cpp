@@ -1,6 +1,9 @@
 
 #include "UEPyFMaterialEditorUtilities.h"
+
 #if WITH_EDITOR
+
+#include "Subsystems/AssetEditorSubsystem.h"
 
 #include "Materials/Material.h"
 #include "Runtime/Engine/Classes/EdGraph/EdGraph.h"

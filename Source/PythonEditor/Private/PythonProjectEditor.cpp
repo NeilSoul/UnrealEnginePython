@@ -1,6 +1,11 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "PythonProjectEditor.h"
+
+#include "Subsystems/AssetEditorSubsystem.h"
+
+// #include "UnrealEd.h"
+
 #include "SPythonEditor.h"
 #include "SPythonProjectEditor.h"
 #include "Runtime/Slate/Public/Widgets/Docking/SDockTab.h"

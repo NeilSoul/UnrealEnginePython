@@ -12,6 +12,7 @@
 #include "UnrealEd.h"
 #include "FbxMeshUtils.h"
 #include "Kismet2/BlueprintEditorUtils.h"
+
 #include "Editor/LevelEditor/Public/LevelEditorActions.h"
 #include "Editor/UnrealEd/Public/EditorLevelUtils.h"
 #include "Runtime/Projects/Public/Interfaces/IPluginManager.h"
@@ -40,6 +41,7 @@
 #include "Runtime/Engine/Public/EditorSupportDelegates.h"
 
 #include "UEPyIPlugin.h"
+
 
 PyObject *py_unreal_engine_redraw_all_viewports(PyObject * self, PyObject * args)
 {
@@ -1411,7 +1413,7 @@ PyObject *py_unreal_engine_reload_blueprint(PyObject * self, PyObject * args)
 	UBlueprint *reloaded_bp = nullptr;
 
 	Py_BEGIN_ALLOW_THREADS
-		reloaded_bp = FKismetEditorUtilities::ReloadBlueprint(bp);
+		reloaded_bp = FKismetEditorUtilities::ReplaceBlueprint(bp, bp);
 	Py_END_ALLOW_THREADS
 
 		Py_RETURN_UOBJECT(reloaded_bp);

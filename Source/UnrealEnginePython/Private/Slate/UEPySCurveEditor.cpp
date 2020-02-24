@@ -95,6 +95,9 @@ namespace
 		/** scale selected keys via specific value */
 		void ScaleSelectedKeys(float inTimeScale, float inValueScale = 1.0f);
 
+		/** scale all keys via specific value */
+		void ScaleAllKeys(float inTimeScale, float inValueScale, float inTimeOrigin = 0.0f, float inValueOrigin = 0.0f);
+
 	protected:
 		/** override paint */
 		int32 OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeometry, const FSlateRect& MyCullingRect, FSlateWindowElementList& OutDrawElements, int32 LayerId, const FWidgetStyle& InWidgetStyle, bool bParentEnabled) const override;
@@ -112,6 +115,8 @@ namespace
 		void ScaleSelectedKeysSectionImpl(const TArray<FSelectedCurveKey>& inSection, const TArray<TPair<float, float>>& inTimeValueArray, float inTimeScale, float inValueScale);
 
 	protected:
+		/** scale all keys in a specific curve */
+		static void ScaleCurveKeys(FRealCurve* inCurve, float inTimeScale, float inValueScale, float inTimeOrigin = 0.0f, float inValueOrigin = 0.0f);
 
 		/** get the sorted keys of a specific selected curve keys array */
 		static TArray<TPair<float, float>> GetSortedSelectedKeysTimeValue(const TArray<FSelectedCurveKey>& inKeys);
@@ -353,6 +358,30 @@ namespace
 		}
 	}
 
+	void SPythonCurveEditor::ScaleAllKeys(float inTimeScale, float inValueScale, float inTimeOrigin, float inValueOrigin)
+	{
+		bool bInvalidTimeScale = inTimeScale <= 0.0f;
+		bool bRedundantScale = inTimeScale == 1.0f && inValueScale == 1.0f;
+
+		if (bInvalidTimeScale || bRedundantScale)
+		{
+			return;
+		}
+		const FScopedTransaction Transition{ LOCTEXT("CurveEditor_Scale", "Scale All Keys") };
+		CurveOwner->ModifyOwner();
+		TArray<FRichCurveEditInfo> ChangedCurveEditInfos;
+		for (auto& Curve : CurveOwner->GetCurves())
+		{
+			ChangedCurveEditInfos.Add(Curve);
+			ScaleCurveKeys(Curve.CurveToEdit, inTimeScale, inValueScale, inTimeOrigin, inValueOrigin);
+		}
+
+		if (ChangedCurveEditInfos.Num() > 0)
+		{
+			CurveOwner->OnCurveChanged(ChangedCurveEditInfos);
+		}
+	}
+
 	auto SPythonCurveEditor::GetSelectedKeysSections() const ->TArray<TArray<FSelectedCurveKey>>
 	{
 		TArray<TArray<FSelectedCurveKey>> Result;
@@ -513,6 +542,25 @@ namespace
 		return Result;
 	}
 
+	void SPythonCurveEditor::ScaleCurveKeys(FRealCurve* inCurve, float inTimeScale, float inValueScale, float inTimeOrigin, float inValueOrigin)
+	{
+		if (inCurve == nullptr)
+		{
+			return;
+		}
+
+		TArray<TPair<float, float>> TimeValuePairs;
+		for (auto KeyHandle = inCurve->GetFirstKeyHandle(); inCurve->IsKeyHandleValid(KeyHandle); KeyHandle = inCurve->GetNextKey(KeyHandle))
+		{
+			TimeValuePairs.Push(inCurve->GetKeyTimeValuePair(KeyHandle));
+		}
+		inCurve->Reset();
+		for (auto& TimeValue : TimeValuePairs)
+		{
+			inCurve->AddKey((TimeValue.Key - inTimeOrigin) * inTimeScale + inTimeOrigin, (TimeValue.Value - inValueOrigin) * inValueScale + inValueOrigin);
+		}
+	}
+
 #undef LOCTEXT_NAMESPACE
 }
 
@@ -557,13 +605,31 @@ static PyObject* py_ue_scurve_editor_duplicate_selected_keys(ue_PySCurveEditor* 
 static PyObject* py_ue_scurve_editor_scale_selected_keys(ue_PySCurveEditor* self, PyObject* args)
 {
 	ue_py_slate_cast(SPythonCurveEditor);
-	float py_scale = 1.0f;
-	if (!PyArg_ParseTuple(args, "f:scale_selected_keys", &py_scale))
+	float py_time_scale = 1.0f;
+	float py_value_scale = 1.0f;
+	if (!PyArg_ParseTuple(args, "ff:scale_selected_keys", &py_time_scale, &py_value_scale))
 	{
 		return nullptr;
 	}
 
-	py_SPythonCurveEditor->ScaleSelectedKeys(py_scale);
+	py_SPythonCurveEditor->ScaleSelectedKeys(py_time_scale, py_value_scale);
+
+	Py_RETURN_SLATE_SELF;
+}
+
+static PyObject* py_ue_scurve_editor_scale_all_keys(ue_PySCurveEditor* self, PyObject* args)
+{
+	ue_py_slate_cast(SPythonCurveEditor);
+	float py_time_scale = 1.0f;
+	float py_value_scale = 1.0f;
+	float py_time_origin = 0.0f;
+	float py_value_origin = 0.0f;
+	if (!PyArg_ParseTuple(args, "ffff:scale_all_keys", &py_time_scale, &py_value_scale, &py_time_origin, &py_value_origin))
+	{
+		return nullptr;
+	}
+
+	py_SPythonCurveEditor->ScaleAllKeys(py_time_scale, py_value_scale, py_time_origin, py_value_origin);
 
 	Py_RETURN_SLATE_SELF;
 }
@@ -573,6 +639,7 @@ static PyMethodDef ue_PySCurveEditor_methods[] =
 	{ "set_curve", (PyCFunction)py_ue_scurve_editor_set_curve, METH_VARARGS, ""},
 	{ "duplicate_selected_keys", (PyCFunction)py_ue_scurve_editor_duplicate_selected_keys, METH_VARARGS, ""},
 	{ "scale_selected_keys", (PyCFunction)py_ue_scurve_editor_scale_selected_keys, METH_VARARGS, ""},
+	{ "scale_all_keys", (PyCFunction)py_ue_scurve_editor_scale_all_keys, METH_VARARGS, ""},
 	{NULL}
 };
 

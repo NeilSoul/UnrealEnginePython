@@ -101,8 +101,9 @@ public class UnrealEnginePython : ModuleRules
     {
 
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+        PublicDefinitions.Add("WITH_UNREALENGINEPYTHON=1"); // fixed
         string enableUnityBuild = System.Environment.GetEnvironmentVariable("UEP_ENABLE_UNITY_BUILD");
-        bFasterWithoutUnity = string.IsNullOrEmpty(enableUnityBuild);
+        bUseUnity = string.IsNullOrEmpty(enableUnityBuild);
 
         PublicIncludePaths.AddRange(
             new string[] {
@@ -245,7 +246,7 @@ public class UnrealEnginePython : ModuleRules
             System.Console.WriteLine("Using Python at: " + pythonHome);
             PublicIncludePaths.Add(pythonHome);
             string libPath = GetWindowsPythonLibFile(pythonHome);
-            PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
+            PublicSystemLibraryPaths.Add(Path.GetDirectoryName(libPath));
             PublicAdditionalLibraries.Add(libPath);
         }
         else if (Target.Platform == UnrealTargetPlatform.Mac)
@@ -261,7 +262,7 @@ public class UnrealEnginePython : ModuleRules
             System.Console.WriteLine("Using Python at: " + pythonHome);
             PublicIncludePaths.Add(pythonHome);
             string libPath = GetMacPythonLibFile(pythonHome);
-            PublicLibraryPaths.Add(Path.GetDirectoryName(libPath));
+            PublicAdditionalLibraries.Add(Path.GetDirectoryName(libPath));
             PublicDelayLoadDLLs.Add(libPath);
         }
         else if (Target.Platform == UnrealTargetPlatform.Linux)
@@ -291,14 +292,15 @@ public class UnrealEnginePython : ModuleRules
         }
 #if WITH_FORWARDED_MODULE_RULES_CTOR
         else if (Target.Platform == UnrealTargetPlatform.Android)
-        {
+		{
             PublicIncludePaths.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/python35/include"));
-            PublicLibraryPaths.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/armeabi-v7a"));
+            PublicAdditionalLibraries.Add(System.IO.Path.Combine(ModuleDirectory, "../../android/armeabi-v7a"));
             PublicAdditionalLibraries.Add("python3.5m");
 
             string APLName = "UnrealEnginePython_APL.xml";
-            string RelAPLPath = Utils.MakePathRelativeTo(System.IO.Path.Combine(ModuleDirectory, APLName), Target.RelativeEnginePath);
-            AdditionalPropertiesForReceipt.Add(new ReceiptProperty("AndroidPlugin", RelAPLPath));
+            string RelAPLPath = Utils.MakePathRelativeTo(ModuleDirectory, Target.RelativeEnginePath);
+            AdditionalPropertiesForReceipt.Add("AndroidPlugin", Path.Combine(RelAPLPath, APLName));
+    
         }
 #endif
 

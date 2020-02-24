@@ -47,7 +47,6 @@ const char *ue4_module_options = "linux_global_symbols";
 #include "Android/AndroidApplication.h"
 #endif
 
-
 const char *UEPyUnicode_AsUTF8(PyObject *py_str)
 {
 #if PY_MAJOR_VERSION < 3
@@ -253,7 +252,11 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("Home"), PythonHome, GEngineIni))
 	{
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *home = (wchar_t *)(TCHAR_TO_WCHAR(*PythonHome));
+	#else
 		wchar_t *home = (wchar_t *)*PythonHome;
+	#endif
 #else
 		char *home = TCHAR_TO_UTF8(*PythonHome);
 #endif
@@ -267,7 +270,11 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPaths::NormalizeFilename(PythonHome);
 		PythonHome = FPaths::ConvertRelativePathToFull(PythonHome);
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *home = (wchar_t *)(TCHAR_TO_WCHAR(*PythonHome));
+	#else
 		wchar_t *home = (wchar_t *)*PythonHome;
+	#endif
 #else
 		char *home = TCHAR_TO_UTF8(*PythonHome);
 #endif
@@ -281,7 +288,11 @@ void FUnrealEnginePythonModule::StartupModule()
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("ProgramName"), IniValue, GEngineIni))
 	{
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *program_name = (wchar_t *)(TCHAR_TO_WCHAR(*IniValue));
+	#else
 		wchar_t *program_name = (wchar_t *)*IniValue;
+	#endif
 #else
 		char *program_name = TCHAR_TO_UTF8(*IniValue);
 #endif
@@ -294,7 +305,11 @@ void FUnrealEnginePythonModule::StartupModule()
 		FPaths::NormalizeFilename(IniValue);
 		IniValue = FPaths::ConvertRelativePathToFull(IniValue);
 #if PY_MAJOR_VERSION >= 3
+	#if ENGINE_MINOR_VERSION >= 20
+		wchar_t *program_name = (wchar_t *)(TCHAR_TO_WCHAR(*IniValue));
+	#else
 		wchar_t *program_name = (wchar_t *)*IniValue;
+	#endif
 #else
 		char *program_name = TCHAR_TO_UTF8(*IniValue);
 #endif
@@ -448,6 +463,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		}
 
 		// Setup our own paths for PYTHONPATH
+		#if PLATFORM_WINDOWS
 		TArray<FString> OurPythonPaths = {
 			PythonHome,
 			FPaths::Combine(PythonHome, TEXT("Lib")),
@@ -460,6 +476,7 @@ void FUnrealEnginePythonModule::StartupModule()
 		PathVars.Append(OurPythonPaths);
 		FString ModifiedPath = FString::Join(PathVars, PathDelimiter);
 		FPlatformMisc::SetEnvironmentVar(TEXT("PATH"), *ModifiedPath);
+		#endif
 	}
 
 #else
@@ -468,7 +485,6 @@ void FUnrealEnginePythonModule::StartupModule()
 #endif
 // DK End
 //////////////////////////////////////////////////////////////////////////
-
 
 #if PY_MAJOR_VERSION >= 3
 	init_unreal_engine_builtin();
