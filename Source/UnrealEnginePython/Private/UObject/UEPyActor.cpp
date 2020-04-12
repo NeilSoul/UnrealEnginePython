@@ -820,7 +820,9 @@ PyObject *py_ue_get_actor_components_by_type(ue_PyUObject * self, PyObject * arg
 
 	PyObject *components = PyList_New(0);
 
-	for (UActorComponent *component : actor->GetComponentsByClass(u_class))
+	TArray<UActorComponent*> comp_refs;
+	actor->GetComponents(u_class, comp_refs);
+	for (UActorComponent *component : comp_refs)
 	{
 		ue_PyUObject *item = ue_get_python_uobject(component);
 		if (item)
