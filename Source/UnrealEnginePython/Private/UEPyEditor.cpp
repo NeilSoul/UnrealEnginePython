@@ -1509,7 +1509,14 @@ PyObject *py_unreal_engine_get_blueprint_components(PyObject * self, PyObject * 
 
 	PyObject *py_blueprint;
 
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyBlueprint) modifier:(xingtongli)
+	/*
 	if (!PyArg_ParseTuple(args, "O|:add_component_to_blueprint", &py_blueprint))
+	*/
+	if (!PyArg_ParseTuple(args, "O|:get_blueprint_components", &py_blueprint))
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 	{
 		return nullptr;
 	}
@@ -1761,6 +1768,27 @@ PyObject * py_unreal_engine_blueprint_set_variable_tooltip(PyObject *self, PyObj
 
 	FBlueprintEditorUtils::SetBlueprintVariableMetaData(bp, FName(UTF8_TO_TCHAR(name)), nullptr, TEXT("tooltip"), UTF8_TO_TCHAR(tooltip_text));
 
+	Py_RETURN_NONE;
+}
+
+PyObject * py_unreal_engine_get_blueprint_component_by_name(PyObject *self, PyObject *args)
+{
+	PyObject *py_blueprint = nullptr;
+	char *name = nullptr;
+	if (!PyArg_ParseTuple(args, "Os|:get_blueprint_component_by_name", &py_blueprint, &name))
+	{
+		return nullptr;
+	}
+
+	UBlueprint *bp = ue_py_check_type<UBlueprint>(py_blueprint);
+	if (!bp)
+		return PyErr_Format(PyExc_Exception, "uobject is not a Blueprint");
+
+	USCS_Node *ComponentNode = bp->SimpleConstructionScript->FindSCSNode(UTF8_TO_TCHAR(name));
+	if (ComponentNode)
+	{
+		Py_RETURN_UOBJECT(ComponentNode->ComponentTemplate);
+	}
 	Py_RETURN_NONE;
 }
 // DK End

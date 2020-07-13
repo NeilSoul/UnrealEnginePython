@@ -124,7 +124,7 @@ public class UnrealEnginePython : ModuleRules
             {
                 "Core",
                 "Sockets",
-                "Networking"
+                "Networking",
 				// ... add other public dependencies that you statically link with here ...
 			}
             );
@@ -134,6 +134,7 @@ public class UnrealEnginePython : ModuleRules
         PrivateIncludePathModuleNames.AddRange(
             new string[] {
                 "ChloePython",
+				"Asteroid",
             }
         );
         // DK End
@@ -164,6 +165,7 @@ public class UnrealEnginePython : ModuleRules
                 //////////////////////////////////////////////////////////////////////////
                 // DK Begin: ID(#DK_Py36) modifier:(shouwang)
                 "Analytics",
+				"Asteroid",
                 // DK End
                 //////////////////////////////////////////////////////////////////////////
 			}
@@ -226,6 +228,7 @@ public class UnrealEnginePython : ModuleRules
                 // DK Begin: ID(#DK_Py36) modifier:(shouwang)
                 "DesktopPlatform",
                 "ChloePython",
+				"Asteroid",
                 // DK End
                 //////////////////////////////////////////////////////////////////////////
             });

@@ -67,6 +67,7 @@ PyObject *py_unreal_engine_blueprint_set_variable_visibility(PyObject *, PyObjec
 // DK Begin: ID(#DK_PyBlueprint) modifier:(xingtongli)
 PyObject *py_unreal_engine_blueprint_set_variable_category(PyObject *, PyObject *);
 PyObject *py_unreal_engine_blueprint_set_variable_tooltip(PyObject *, PyObject *);
+PyObject *py_unreal_engine_get_blueprint_component_by_name(PyObject *, PyObject *);
 // DK End
 //////////////////////////////////////////////////////////////////////////
 

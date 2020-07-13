@@ -1798,31 +1798,50 @@ PyObject * py_unreal_engine_create_wrapper_from_pyswidget(PyObject *self, PyObje
 PyObject *py_unreal_engine_open_color_picker(PyObject *self, PyObject *args, PyObject *kwargs)
 {
 
-	PyObject *py_callable = nullptr;
-
-	char *kwlist[] = {
-		(char *)"on_color_committed",
-		nullptr };
-	if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O:open_color_picker", kwlist,
-		&py_callable))
-	{
-		return nullptr;
-	}
-
-	if (!PyCallable_Check(py_callable))
-	{
-		return PyErr_Format(PyExc_Exception, "on_color_committed must be a callable");
-	}
-
-	TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
-	FColorPickerArgs color_args;
-	color_args.OnColorCommitted.BindSP(py_delegate, &FPythonSlateDelegate::OnLinearColorChanged);
-
-	if (OpenColorPicker(color_args))
-	{
-		Py_RETURN_TRUE;
-	}
-	Py_RETURN_FALSE;
+        PyObject *py_callable = nullptr;
+		//////////////////////////////////////////////////////////////////////////
+		// DK Begin: ID(##DK_PyColorPicker) modifier:(moorewang)
+		PyObject *py_linear_color = nullptr;
+        char *kwlist[] = {
+                (char *)"on_color_committed",
+                (char *)"initial_color_override",
+                nullptr };
+        if (!PyArg_ParseTupleAndKeywords(args, kwargs, "O|O:open_color_picker", kwlist,
+                &py_callable, &py_linear_color))
+        {
+                return nullptr;
+        }
+		// DK End
+		//////////////////////////////////////////////////////////////////////////
+        if (!PyCallable_Check(py_callable))
+        {
+                return PyErr_Format(PyExc_Exception, "on_color_committed must be a callable");
+        }
+		//////////////////////////////////////////////////////////////////////////
+		// DK Begin: ID(##DK_PyColorPicker) modifier:(moorewang)
+        FLinearColor init_color = FLinearColor::White;
+        if (py_linear_color)
+        {
+                if (!py_ue_get_flinearcolor(py_linear_color, init_color))
+                {
+                        return PyErr_Format(PyExc_Exception, "argument is not a FLinearColor or FColor.");
+                }
+        }
+		// DK End
+		//////////////////////////////////////////////////////////////////////////
+        TSharedRef<FPythonSlateDelegate> py_delegate = FUnrealEnginePythonHouseKeeper::Get()->NewStaticSlateDelegate(py_callable);
+        FColorPickerArgs color_args;
+        color_args.OnColorCommitted.BindSP(py_delegate, &FPythonSlateDelegate::OnLinearColorChanged);
+		//////////////////////////////////////////////////////////////////////////
+		// DK Begin: ID(##DK_PyColorPicker) modifier:(moorewang)
+        color_args.InitialColorOverride = init_color;
+		// DK End
+		//////////////////////////////////////////////////////////////////////////
+        if (OpenColorPicker(color_args))
+        {
+                Py_RETURN_TRUE;
+        }
+        Py_RETURN_FALSE;
 }
 
 PyObject *py_unreal_engine_destroy_color_picker(PyObject *self, PyObject * args)

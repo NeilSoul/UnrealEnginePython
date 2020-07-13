@@ -49,9 +49,13 @@
             "Name": "ChloePython",
             "Enabled": true
         },
-        {
-            "Name" : "AdvancedCharacter",
-            "Enabled" : true
-        },
+		{
+			"Name": "AdvancedCharacter",
+			"Enabled": true
+		},
+		{
+			"Name": "Asteroid",
+			"Enabled": true
+		}
     ]
 }

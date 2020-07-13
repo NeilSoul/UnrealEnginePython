@@ -110,6 +110,12 @@ public:
 
 	void RunString(char *);
 	void RunFile(char *);
+	//////////////////////////////////////////////////////////////////////////
+	// DK Begin: ID(#DK_PyPropertyButton) modifier:(xingtongli)
+	PyObject* GetGlobalDict() { return (PyObject*)main_dict; }
+	PyObject* GetLocalDict() { return (PyObject*)local_dict; }
+	// DK End
+	//////////////////////////////////////////////////////////////////////////
 
 #if PLATFORM_MAC
 	void RunStringInMainThread(char *);

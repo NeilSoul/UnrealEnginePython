@@ -101,6 +101,10 @@
 #endif
 
 #include "Wrappers/UEPyFFrameNumber.h"
+#if WITH_EDITOR
+#include "Wrappers/UEPyFAsteroidTangentData.h"
+#include "Wrappers/UEPyFAsteroidFloatValue.h"
+#endif
 
 #include "Slate/UEPySlate.h"
 #include "Http/UEPyIHttp.h"
@@ -401,6 +405,7 @@ static PyMethodDef unreal_engine_methods[] = {
 	// DK Begin: ID(#DK_PyBlueprint) modifier:(xingtongli)
 	{ "blueprint_set_variable_category", py_unreal_engine_blueprint_set_variable_category, METH_VARARGS, "" },
 	{ "blueprint_set_variable_tooltip", py_unreal_engine_blueprint_set_variable_tooltip, METH_VARARGS, "" },
+	{ "get_blueprint_component_by_name", py_unreal_engine_get_blueprint_component_by_name, METH_VARARGS, "" },
 	// DK End
 	//////////////////////////////////////////////////////////////////////////
 	{ "blueprint_add_function", py_unreal_engine_blueprint_add_function, METH_VARARGS, "" },
@@ -1134,6 +1139,7 @@ static PyMethodDef ue_PyUObject_methods[] = {
 	{ "sequencer_find_track", (PyCFunction)py_ue_sequencer_find_track, METH_VARARGS, "" },
 	{ "sequencer_add_object", (PyCFunction)py_ue_sequencer_add_object, METH_VARARGS, "" },
 	{ "sequencer_track_set_property", (PyCFunction)py_ue_sequencer_track_set_property, METH_VARARGS, "" },
+	
 // DK End
 /////////////////////////////////////////////////////////////
 	{ "sequencer_make_new_spawnable", (PyCFunction)py_ue_sequencer_make_new_spawnable, METH_VARARGS, "" },
@@ -1720,6 +1726,11 @@ void unreal_engine_init_py_module()
 
 #if ENGINE_MINOR_VERSION >= 20
 	ue_python_init_fframe_number(new_unreal_engine_module);
+#endif
+
+#if WITH_EDITOR
+	ue_python_init_fasteroid_tangent_data(new_unreal_engine_module);
+	ue_python_init_fasteroid_float_value(new_unreal_engine_module);
 #endif
 
 	ue_python_init_frandomstream(new_unreal_engine_module);

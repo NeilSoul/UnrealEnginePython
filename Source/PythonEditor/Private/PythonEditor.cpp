@@ -9,6 +9,11 @@
 #include "PythonProject.h"
 #include "Subsystems/AssetEditorSubsystem.h"
 #include "Runtime/Slate/Public/Framework/MultiBox/MultiBoxBuilder.h"
+//////////////////////////////////////////////////////////////////////////
+// DK Begin: ID(#DK_PyPropertyButton) modifier:(xingtongli)
+#include "PyButtonPropertyDetails.h"
+// DK End
+//////////////////////////////////////////////////////////////////////////
 
 static const FName PythonEditorTabName( TEXT( "PythonEditor" ) );
 
@@ -69,6 +74,13 @@ public:
 				.SetDisplayName( LOCTEXT( "PythonEditorTabTitle", "Python Editor" ) )
 				.SetTooltipText( LOCTEXT( "PythonEditorTooltipText", "Open the Python Editor tab." ) )
 				.SetIcon(FSlateIcon(FPythonEditorStyle::Get().GetStyleSetName(), "PythonEditor.TabIcon"));
+
+		//////////////////////////////////////////////////////////////////////////
+		// DK Begin: ID(#DK_PyPropertyButton) modifier:(xingtongli)
+		FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+		PropertyModule.RegisterCustomPropertyTypeLayout(TEXT("PyPropertyButton"), FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FPyButtonPropertyDetails::MakeInstance));
+		// DK End
+		//////////////////////////////////////////////////////////////////////////
 	}
 
 	virtual void ShutdownModule() override
